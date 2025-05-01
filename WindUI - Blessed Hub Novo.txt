@@ -1,0 +1,3050 @@
+-- Executa o script automaticamente ao iniciar
+task.spawn(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/vqmpjayZ/More-Scripts/refs/heads/main/Anthony's%20ACL"))()
+end)
+
+--Resto do script
+local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
+
+local Window = WindUI:CreateWindow({
+    Title = "Blessed Hub | Elite",
+    Icon = "crown",
+    Author = "Gab Scripts",
+    Folder = "CloudHub",
+    Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
+    Theme = "Dark",
+    SideBarWidth = 200,
+    Background = "rbxassetid://137028743511937", -- rbxassetid only
+    HasOutline = false,
+    -- remove it below if you don't want to use the key system in your script.
+    KeySystem = { 
+        Key = { "1234", "5678" },
+        Note = "The Key is '1234' or '5678",
+         Thumbnail = {
+             Image = "rbxassetid://110674298351147", -- rbxassetid only
+             Title = "Blessed Hub"
+         },
+        URL = "https://github.com/Footagesus/WindUI", -- remove this if the key is not obtained from the link.
+        SaveKey = true, -- optional
+    },
+})
+
+-- Configuração do botão para abrir a UI
+Window:EditOpenButton({
+    Title = "Abrir Blessed Hub",
+    Icon = "monitor",
+    CornerRadius = UDim.new(0,10),
+    StrokeThickness = 2,
+    Color = ColorSequence.new( -- gradient
+        Color3.fromHex("FF0F7B"), 
+        Color3.fromHex("F89B29")
+    ),
+    Enabled = true,
+    Draggable = true,
+})
+
+local soundId = "rbxassetid://1836973601"
+
+-- Função para tocar o som
+local function playSound()
+    local sound = Instance.new("Sound")
+    sound.SoundId = soundId
+    sound.Parent = game.Workspace -- Coloque no Workspace para garantir que seja ouvido
+    sound:Play()
+end
+
+-- Tocar o som assim que o script for executado
+playSound()
+
+-- Criando abas
+local CreditTab = Window:Tab({
+    Title = "Creditos",
+    Icon = "info",
+})
+
+Window:SelectTab(1)
+
+local MainTab = Window:Tab({
+    Title = "Inicio",
+    Icon = "house",
+})
+
+local PlayerTab = Window:Tab({
+    Title = "Player",
+    Icon = "user",
+})
+
+local PersonagemTab = Window:Tab({
+    Title = "Personagem",
+    Icon = "footprints",
+})
+
+local SkinTab = Window:Tab({
+    Title = "Skins Salvas",
+    Icon = "shirt",
+})
+
+local StalkTab = Window:Tab({
+    Title = "Stalk",
+    Icon = "eye",
+})
+
+local TeleportTab = Window:Tab({
+    Title = "Teleportes",
+    Icon = "map-pin",
+})
+
+local TrollTab = Window:Tab({
+    Title = "Troll",
+    Icon = "skull",
+})
+
+local BypassTab = Window:Tab({
+    Title = "Bypass",
+    Icon = "cpu",
+})
+
+local MusicTab = Window:Tab({
+	Title = "Musica",
+	Icon = "music",
+})
+
+local ParceirosTab = Window:Tab({
+	Title = "Parceiros de script",
+	Icon = "users",
+})
+
+local TagTab = Window:Tab({
+	Title = "Tags",
+	Icon = "tag",
+})
+
+local ItemTab = Window:Tab({
+	Title = "Item",
+	Icon = "backpack",
+})
+
+local PremiumTab = Window:Tab({
+    Title = "Premium",
+    Icon = "rbxassetid://120011858138977",
+})
+
+local WindowTab = Window:Tab({
+    Title = "Settings",
+    Icon = "settings",
+})
+
+local ExtraTab = Window:Tab({
+    Title = "Extras",
+    Icon = "grid",
+})
+
+MainTab:Paragraph({
+    Title = "Local Geral",
+    Desc = "Aba de opções gerais (mais usadas).",
+    Image = "smile"
+})
+
+PlayerTab:Paragraph({
+    Title = "Local do Jogador",
+    Desc = "Aba de opções para o seu personagem.",
+    Image = "smile"
+})
+
+PersonagemTab:Paragraph({
+    Title = "Local do Personagem",
+    Desc = "Aba de opções para skin do seu personagem.",
+    Image = "smile"
+})
+
+SkinTab:Paragraph({
+    Title = "Local de Skin",
+    Desc = "Aba de skins salvas.",
+    Image = "smile"
+})
+
+StalkTab:Paragraph({
+    Title = "Local de Informações",
+    Desc = "Aba de pegar informações do jogador.",
+    Image = "smile"
+})
+
+TeleportTab:Paragraph({
+    Title = "Local de Teleportes",
+    Desc = "Aba de teleportar para locais do mapa.",
+    Image = "smile"
+})
+
+TrollTab:Paragraph({
+    Title = "Local de Troll",
+    Desc = "Aba de trollar jogadores.",
+    Image = "smile"
+})
+
+BypassTab:Paragraph({
+    Title = "Local de Bypass",
+    Desc = "Aba de bular o jogo.",
+    Image = "smile"
+})
+
+PremiumTab:Paragraph({
+    Title = "Local de Premium",
+    Desc = "Aba de funções Premium.",
+    Image = "smile"
+})
+
+WindowTab:Paragraph({
+    Title = "Local de Configurações",
+    Desc = "Aba de configurações.",
+    Image = "smile"
+})
+
+ExtraTab:Paragraph({
+    Title = "Local de Funções Extras",
+    Desc = "Aba de funções extras no script.",
+    Image = "smile"
+})
+
+CreditTab:Section({
+    Title = "Bem-vindo ao Blessed Hub, " .. game.Players.LocalPlayer.DisplayName .. "!",
+    TextSize = 20,
+})
+
+-- Função para obter a data e o horário atual formatado
+local function GetDateTime()
+    local now = os.date("*t") -- Obtém a data e hora atual
+    return string.format("%02d/%02d/%04d - %02d:%02d:%02d", now.day, now.month, now.year, now.hour, now.min, now.sec)
+end
+
+-- Cria a Section com a data e horário
+local TimeSection = CreditTab:Section({
+    Title = "Data e Hora",
+    TextSize = 18,
+})
+
+-- Atualiza a Section com o horário em tempo real
+task.spawn(function()
+    while true do
+        TimeSection:SetTitle("Data e Hora: " .. GetDateTime()) -- Atualiza o texto da Section
+        wait(1) -- Atualiza a cada segundo
+    end
+end)
+
+local playerCountLabel = MainTab:Section({
+    Title = "Jogadores No Servidor: " .. #game.Players:GetPlayers(),
+    TextXAlignment = "Center"
+})
+
+-- Função para atualizar o número de jogadores quando alguém entra ou sai
+local function updatePlayerCount()
+    playerCountLabel:SetTitle("Jogadores No Servidor: " .. #game.Players:GetPlayers())
+end
+
+-- Conecta a função ao evento de entrada de novos jogadores
+game.Players.PlayerAdded:Connect(updatePlayerCount)
+
+-- Conecta a função ao evento de saída de jogadores
+game.Players.PlayerRemoving:Connect(updatePlayerCount)
+
+-- Atualiza a contagem de jogadores no início
+updatePlayerCount()
+
+CreditTab:Button({
+    Title = "Copiar Link do Canal YouTube do Criador do Script",
+    Callback = function()
+        setclipboard("https://youtube.com/@ghzinn077?si=8YTQJcw95ww43ISC")
+        WindUI:Notify({
+            Title = "Sucesso!",
+            Content = "Link do canal copiado para a área de transferência.",
+            Duration = 3
+        })
+    end
+})
+
+CreditTab:Button({
+    Title = "Copiar Link do Servidor Discord do Criador do Script",
+    Callback = function()
+        setclipboard("https://dsc.gg/blessed-scripts")
+        WindUI:Notify({
+            Title = "Sucesso!",
+            Content = "Link do discord copiado para a área de transferência.",
+            Duration = 3
+        })
+    end
+})
+
+CreditTab:Code({
+    Title = "Creditos do script",
+    Code = [[
+Esse script foi feito com muito carinho
+pela equipe Blessed Team ❤️
+
+Muito obrigado por usar o Blessed Hub 😊
+
+ Desenvolvedores: Gab Scripts e Robson
+ Helpers: Kauan e Anna
+    ]],
+})
+
+PlayerTab:Slider({
+    Title = "Adjust Field of View",
+    Step = 1,
+    Value = { Min = 20, Max = 120, Default = 70 },
+    Callback = function(value)
+        game.Workspace.Camera.FieldOfView = value
+    end
+})
+
+PlayerTab:Input({
+    Title = "Speed Input",
+    Desc = "Altera sua velocidade (16 velocidade normal)",
+    PlaceholderText = "16",
+    Callback = function(Text)
+        local speed = tonumber(Text) -- Converte o valor para número
+        if speed then
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid then
+                humanoid.WalkSpeed = speed -- Aplica a velocidade ao personagem
+                WindUI:Notify({
+                    Title = "Speed Aplicado",
+                    Content = "Sua velocidade agora é: " .. speed,
+                    Duration = 5,
+                })
+            else
+                WindUI:Notify({
+                    Title = "Error",
+                    Content = "Humanoid not found!",
+                    Duration = 5,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "Invalid Input",
+                Content = "Please enter a valid number.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+PlayerTab:Toggle({
+    Title = "Sprint",
+    Desc = "Ativa/desativa o sprint",
+    Value = false, -- O valor padrão é 'false', ou seja, o sprint está desativado por padrão.
+    Callback = function(state)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        if humanoid then
+            if state then
+                humanoid.WalkSpeed = 24 -- Velocidade ao ativar o sprint
+                WindUI:Notify({
+                    Title = "Sprint Ativado",
+                    Content = "WalkSpeed ajustado para 24",
+                    Duration = 5,
+                })
+            else
+                humanoid.WalkSpeed = 16 -- Velocidade padrão ao desativar o sprint
+                WindUI:Notify({
+                    Title = "Sprint Desativado",
+                    Content = "WalkSpeed ajustado para 16",
+                    Duration = 5,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Humanoid não encontrado!",
+                Duration = 5,
+            })
+        end
+    end,
+})
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+-- Função para garantir que o humanoide do jogador seja acessível
+local function getHumanoid()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    return character:WaitForChild("Humanoid")
+end
+
+-- Toggle para ativar/desativar Swim Mode
+PlayerTab:Toggle({
+    Title = "Swim Mode",
+    Desc = "Ativa ou desativa o modo de nado",
+    Value = false, -- Modo de nado desativado por padrão
+    Callback = function(state)
+        local humanoid = getHumanoid()
+        if humanoid then
+            if state then
+                -- Ativar modo de nado
+                Workspace.Gravity = 0 -- Remove a gravidade
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true) -- Ativa o estado de nado
+                humanoid:ChangeState(Enum.HumanoidStateType.Swimming) -- Força o estado de nado
+
+                WindUI:Notify({
+                    Title = "Swim Mode Ativado",
+                    Content = "Agora você está nadando!",
+                    Duration = 5,
+                })
+            else
+                -- Desativar modo de nado e restaurar estados padrão
+                Workspace.Gravity = 196.2 -- Restaura a gravidade padrão
+
+                -- Habilita todos os estados normais do humanoide
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+
+                -- Força o humanoide a retornar ao estado Running para normalizar
+                humanoid:ChangeState(Enum.HumanoidStateType.Running)
+
+                WindUI:Notify({
+                    Title = "Swim Mode Desativado",
+                    Content = "Modo de nado desativado.",
+                    Duration = 5,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Humanoid não encontrado!",
+                Duration = 5,
+            })
+        end
+    end,
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local StealthMode = true -- Define se o modo furtivo está ativado (sem logs no jogo)
+local noclip = false -- Define o estado inicial do Noclip
+local Indicator
+
+-- Função para criar um indicador na tela se o StealthMode estiver desativado
+if not StealthMode then
+    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+    Indicator = Instance.new("TextLabel", ScreenGui)
+    Indicator.AnchorPoint = Vector2.new(0, 1)
+    Indicator.Position = UDim2.new(0, 0, 1, 0)
+    Indicator.Size = UDim2.new(0, 200, 0, 50)
+    Indicator.BackgroundTransparency = 1
+    Indicator.TextScaled = true
+    Indicator.TextStrokeTransparency = 0
+    Indicator.TextColor3 = Color3.new(0, 0, 0)
+    Indicator.TextStrokeColor3 = Color3.new(1, 1, 1)
+    Indicator.Text = "Noclip: Disabled"
+end
+
+-- Função para alternar o estado do Noclip
+local function toggleNoclip(state)
+    noclip = state
+
+    if not StealthMode and Indicator then
+        Indicator.Text = "Noclip: " .. (noclip and "Enabled" or "Disabled")
+    end
+end
+
+-- Toggle para ativar/desativar o Noclip
+PlayerTab:Toggle({
+    Title = "Noclip",
+    Desc = "Permite atravessar paredes",
+    Value = false, -- Estado inicial do toggle
+    Callback = function(state)
+        toggleNoclip(state)
+        WindUI:Notify({
+            Title = "Noclip",
+            Content = state and "Noclip ativado" or "Noclip desativado",
+            Duration = 5,
+        })
+    end,
+})
+
+-- Loop para aplicar o estado do Noclip continuamente
+RunService.Stepped:Connect(function()
+    if noclip then
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false -- Desativa colisão
+            end
+        end
+    else
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true -- Restaura colisão
+            end
+        end
+    end
+end)
+
+
+-- Player Tab
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local SelectedPlayer = nil
+local ToggleActive = false
+local ColorChangeActive = false
+local AutoEquipSkins = false
+local SavedSkinName = ""
+
+-- Função para buscar jogador por DisplayName ou Username
+local function GetPlayerByName(query)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #query) == query:lower() or  
+           player.DisplayName:lower():sub(1, #query) == query:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Função para copiar a skin do jogador
+local function CopyPlayerSkin(player)
+    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+        local humanoidDescription = player.Character.Humanoid.HumanoidDescription
+        local args = {
+            [1] = humanoidDescription,
+            [2] = true
+        }
+        game:GetService("ReplicatedStorage").Events.TryBuy.Try:FireServer(unpack(args))
+    end
+end
+
+
+-- Função para alterar continuamente a cor do personagem
+local function StartColorChange()
+    task.spawn(function()
+        while ColorChangeActive do
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                local newColor = Color3.new(math.random(), math.random(), math.random())
+                local args = {
+                    [1] = {
+                        ["BodyColor"] = {
+                            ["HeadColor"] = newColor,
+                            ["TorsoColor"] = newColor,
+                            ["LeftArmColor"] = newColor,
+                            ["RightArmColor"] = newColor,
+                            ["LeftLegColor"] = newColor,
+                            ["RightLegColor"] = newColor
+                        }
+                    }
+                }
+                ReplicatedStorage.BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(args))
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+-- Input para selecionar jogador
+MainTab:Input({
+    Title = "Selecionar Jogador",
+    PlaceholderText = "Digite as iniciais...",
+    Callback = function(value)
+        SelectedPlayer = GetPlayerByName(value)
+    end
+})
+
+-- Toggle para visualizar jogador
+MainTab:Toggle({
+    Title = "Visualizar Jogador",
+    Desc = "Alterna entre visualizar ou não o jogador",
+    Value = false,
+    Callback = function(state)
+        if SelectedPlayer and SelectedPlayer.Character and SelectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            if state then
+                game.Workspace.CurrentCamera.CameraSubject = SelectedPlayer.Character.Humanoid
+            else
+                game.Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
+            end
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Nenhum jogador válido selecionado.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+-- Botão para copiar a skin do jogador selecionado
+MainTab:Button({
+    Title = "Copiar Skin",
+    Desc = "Copie a skin do jogador selecionado",
+    Callback = function()
+        if SelectedPlayer then
+            CopyPlayerSkin(SelectedPlayer)
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Nenhum jogador válido selecionado.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+local copySkinConnection -- Variável para armazenar a conexão
+
+MainTab:Toggle({
+    Title = "Copiar Skin ao Clicar",
+    Desc = "Ative para copiar a skin de um jogador ao clicar nele.",
+    Value = false,
+    Callback = function(state)
+        local Players = game:GetService("Players")
+        local Mouse = Players.LocalPlayer:GetMouse()
+
+        -- Função para copiar a skin do jogador
+        local function CopyPlayerSkin(player)
+            if player and player.Character then
+                local args = {
+                    [1] = player.Character.Humanoid.HumanoidDescription,
+                    [2] = true
+                }
+                game:GetService("ReplicatedStorage").Events.TryBuy.Try:FireServer(unpack(args))
+            end
+        end
+
+        -- Ativa o evento para copiar skin
+        if state then
+            copySkinConnection = Mouse.Button1Down:Connect(function()
+                local target = Mouse.Target
+                if target and target.Parent:IsA("Model") and Players:GetPlayerFromCharacter(target.Parent) then
+                    local player = Players:GetPlayerFromCharacter(target.Parent)
+                    CopyPlayerSkin(player)
+                    WindUI:Notify({
+                        Title = "Skin Copiada",
+                        Content = "Você copiou a skin de: " .. player.Name,
+                        Duration = 5,
+                    })
+                end
+            end)
+        else
+            -- Desativa a funcionalidade e desconecta o evento
+            if copySkinConnection then
+                copySkinConnection:Disconnect()
+                copySkinConnection = nil
+            end
+            WindUI:Notify({
+                Title = "Desativado",
+                Content = "Copiar Skin ao Clicar foi desativado.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+
+-- Personagem Tab
+
+-- Função para obter os IDs dos itens equipados
+local function GetEquippedSkinIDs()
+    local equippedIDs = {}
+
+    -- Verifica os acessórios no personagem
+    for _, item in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if item:IsA("Accessory") and item:FindFirstChild("Handle") then
+            local handle = item.Handle
+            local mesh = handle:FindFirstChildOfClass("SpecialMesh") or handle:FindFirstChildOfClass("Mesh")
+            if mesh and mesh.MeshId and mesh.MeshId ~= "" then
+                local accessoryId = mesh.MeshId:match("%d+")
+                table.insert(equippedIDs, "Acessório: " .. (accessoryId or "Sem ID") .. " (" .. item.Name .. ")")
+            else
+                table.insert(equippedIDs, "Acessório (Sem ID): " .. item.Name)
+            end
+        end
+    end
+
+    -- Verifica roupas (Shirts e Pants)
+    local shirt = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Shirt")
+    if shirt and shirt.ShirtTemplate and shirt.ShirtTemplate ~= "" then
+        table.insert(equippedIDs, "Roupa (Camisa): " .. shirt.ShirtTemplate)
+    end
+
+    local pants = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Pants")
+    if pants and pants.PantsTemplate and pants.PantsTemplate ~= "" then
+        table.insert(equippedIDs, "Roupa (Calça): " .. pants.PantsTemplate)
+    end
+
+    return equippedIDs
+end
+
+-- Função para equipar acessórios
+local function EquiparAcessorios(ids)
+    local idsArray = string.split(ids, " ") -- Divide os IDs separados por espaço
+    for _, id in ipairs(idsArray) do
+        local args = {
+            [1] = "accessory",
+            [2] = tonumber(id)
+        }
+        -- Envia o comando para equipar o acessório
+        game:GetService("ReplicatedStorage").AvatarEditor.RemoteEvent:FireServer(unpack(args))
+    end
+end
+
+-- Função para equipar cabelos
+local function EquiparCabelos(ids)
+    local idsArray = string.split(ids, " ") -- Divide os IDs separados por espaço
+    for _, id in ipairs(idsArray) do
+        local args = {
+            [1] = {
+                ["AccessoryData"] = {
+                    ["Order"] = 1,
+                    ["AccessoryType"] = Enum.AccessoryType.Hair,
+                    ["AssetId"] = tonumber(id)
+                }
+            }
+        }
+        -- Envia o comando para equipar o cabelo
+        game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(args))
+    end
+end
+
+-- Botão para exibir os IDs dos itens equipados
+PersonagemTab:Button({
+    Title = "Exibir IDs Equipados",
+    Desc = "Mostra os IDs dos itens atualmente equipados.",
+    Callback = function()
+        local equippedIDs = GetEquippedSkinIDs()
+        if #equippedIDs > 0 then
+            local idsString = table.concat(equippedIDs, "\n")
+            WindUI:Notify({
+                Title = "Itens Equipados",
+                Content = idsString,
+                Duration = 10,
+            })
+        else
+            WindUI:Notify({
+                Title = "Nenhum Item Encontrado",
+                Content = "Nenhum acessório ou roupa foi identificado.",
+                Duration = 10,
+            })
+        end
+    end
+})
+
+-- Input para copiar os IDs para área de transferência
+PersonagemTab:Input({
+    Title = "Copiar IDs",
+    Desc = "Digite 'sim' para copiar os IDs equipados para sua área de transferência.",
+    PlaceholderText = "Digite 'sim' para copiar",
+    Finished = true, -- Executa somente ao pressionar Enter
+    Callback = function(value)
+        if value:lower() == "sim" then
+            local equippedIDs = GetEquippedSkinIDs()
+            if #equippedIDs > 0 then
+                local idsString = table.concat(equippedIDs, "\n")
+                setclipboard(idsString)
+                WindUI:Notify({
+                    Title = "IDs Copiados",
+                    Content = "IDs copiados para sua área de transferência.",
+                    Duration = 10,
+                })
+            else
+                WindUI:Notify({
+                    Title = "Nenhum Item Encontrado",
+                    Content = "Nenhum acessório ou roupa foi identificado para copiar.",
+                    Duration = 10,
+                })
+            end
+        else
+            WindUI:Notify({
+                Title = "Operação Cancelada",
+                Content = "IDs não foram copiados.",
+                Duration = 10,
+            })
+        end
+    end
+})
+
+-- Input para equipar acessórios
+PersonagemTab:Input({
+    Title = "Equipar Acessórios",
+    Desc = "Digite os IDs dos acessórios separados por espaço.",
+    PlaceholderText = "Ex: 123456 654321",
+    Finished = true, -- Executa somente ao pressionar Enter
+    Callback = function(value)
+        EquiparAcessorios(value)
+        WindUI:Notify({
+            Title = "Acessórios Equipados",
+            Content = "Os acessórios foram equipados com sucesso.",
+            Duration = 5,
+        })
+    end
+})
+
+-- Input para equipar cabelos
+PersonagemTab:Input({
+    Title = "Equipar Cabelos",
+    Desc = "Digite os IDs dos cabelos separados por espaço.",
+    PlaceholderText = "Ex: 789012 210987",
+    Finished = true, -- Executa somente ao pressionar Enter
+    Callback = function(value)
+        EquiparCabelos(value)
+        WindUI:Notify({
+            Title = "Cabelos Equipados",
+            Content = "Os cabelos foram equipados com sucesso.",
+            Duration = 5,
+        })
+    end
+})
+
+-- Toggle para mudar a cor do personagem continuamente
+PersonagemTab:Toggle({
+    Title = "Mudar Cor do Personagem",
+    Desc = "Troca as cores do personagem continuamente",
+    Value = false,
+    Callback = function(state)
+        ColorChangeActive = state
+        if state then
+            StartColorChange()
+        end
+    end
+})
+
+-- Toggle para equipar skins automaticamente
+PersonagemTab:Toggle({
+    Title = "Equipar Skins Automático",
+    Desc = "Copia as skins de todos os jogadores automaticamente e rapidamente",
+    Value = false,
+    Callback = function(state)
+        AutoEquipSkins = state
+        if state then
+            task.spawn(function()
+                while AutoEquipSkins do
+                    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                        if player ~= game.Players.LocalPlayer then
+                            CopyPlayerSkin(player)
+                            task.wait(0.1) -- Intervalo menor para equipar rapidamente
+                        end
+                    end
+                    task.wait(0.5) -- Reduz o tempo de espera entre loops
+                end
+            end)
+        end
+    end
+})
+
+-- Função para copiar a skin de um jogador
+local function CopyPlayerSkin(player)
+    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+        local humanoidDescription = player.Character.Humanoid.HumanoidDescription
+        local args = {
+            [1] = humanoidDescription,
+            [2] = true
+        }
+        game:GetService("ReplicatedStorage").Events.TryBuy.Try:FireServer(unpack(args))
+    end
+end
+
+-- Função para salvar as skins de todos os jogadores no mapa
+local savedSkins = {}
+
+local function SaveAllPlayerSkins()
+    -- Limpa a lista de skins salvas
+    savedSkins = {}
+    
+    -- Itera sobre todos os jogadores no jogo
+    for _, player in pairs(game.Players:GetPlayers()) do
+        -- Verifica se o jogador está no jogo e tem uma skin válida
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            -- Salva a skin do jogador no array de skins
+            table.insert(savedSkins, {player.DisplayName, player})  -- Armazena o display name e o jogador
+        end
+    end
+    
+    -- Exibe uma notificação para informar que as skins foram salvas
+    WindUI:Notify({
+        Title = "Skins Salvas",
+        Content = "As skins de todos os jogadores foram salvas!",
+        Duration = 3
+    })
+    
+    -- Atualiza o DropDown com os nomes das skins salvas
+    local skinNames = {}
+    for _, playerData in ipairs(savedSkins) do
+        table.insert(skinNames, playerData[1])  -- Adiciona o display name do jogador como nome da skin
+    end
+
+    -- Cria o DropDown com as skins salvas
+    local DropDown = PersonagemTab:Dropdown({
+        Title = "Selecione a Skin",
+        Desc = "Escolha a skin para equipar",
+        Multi = false,
+        Value = skinNames[1],  -- Valor inicial
+        AllowNone = true,
+        Values = skinNames,
+        Callback = function(selectedSkinName)
+            -- Encontra o jogador pelo display name
+            local selectedPlayer = nil
+            for _, playerData in ipairs(savedSkins) do
+                if playerData[1] == selectedSkinName then
+                    selectedPlayer = playerData[2]  -- Obtém o jogador
+                    break
+                end
+            end
+
+            -- Se o jogador for encontrado, equipa a skin dele
+            if selectedPlayer then
+                CopyPlayerSkin(selectedPlayer)
+                WindUI:Notify({
+                    Title = "Skin Equipado",
+                    Content = "A skin de " .. selectedPlayer.DisplayName .. " foi equipada!",
+                    Duration = 3
+                })
+            end
+        end
+    })
+end
+
+-- Função para salvar a skin no catálogo
+local function SaveSkinToCatalog(skinName)
+    local args = {
+        [1] = "create",
+        [2] = skinName  -- O nome da skin ou jogador
+    }
+    game:GetService("ReplicatedStorage").AvatarEditor.RemoteEvent:FireServer(unpack(args))
+end
+
+-- Função para salvar todas as skins no catálogo e equipá-las uma por uma
+local function SaveAllSkinsToCatalog()
+    local currentIndex = 1  -- Índice para iterar pelas skins salvas
+    
+    -- Função recursiva para salvar e equipar uma skin de cada vez
+    local function EquipAndSaveNextSkin()
+        -- Se o índice estiver dentro dos limites da lista de skins salvas
+        if currentIndex <= #savedSkins then
+            local skinName = savedSkins[currentIndex][1]  -- Nome da skin ou nome do jogador
+            local selectedPlayer = savedSkins[currentIndex][2]  -- Jogador correspondente
+            
+            -- Equipar a skin
+            CopyPlayerSkin(selectedPlayer)
+            
+            -- Salvar a skin no catálogo
+            SaveSkinToCatalog(skinName)
+            
+            -- Notificação para indicar que a skin foi equipada e salva
+            WindUI:Notify({
+                Title = "Skin Salva no Catálogo",
+                Content = "A skin de " .. skinName .. " foi equipada e salva no catálogo!",
+                Duration = 3
+            })
+            
+            -- Avançar para a próxima skin
+            currentIndex = currentIndex + 1
+            wait(1)  -- Espera 1 segundo entre as operações para evitar sobrecarga
+            EquipAndSaveNextSkin()  -- Chama a função novamente para processar a próxima skin
+        else
+            -- Quando terminar de processar todas as skins
+            WindUI:Notify({
+                Title = "Todas as Skins Salvas",
+                Content = "Todas as skins foram salvas no catálogo e equipadas!",
+                Duration = 5
+            })
+        end
+    end
+    
+    -- Inicia o processo
+    EquipAndSaveNextSkin()
+end
+
+-- Botão para salvar as skins de todos os jogadores
+PersonagemTab:Button({
+    Title = "Salvar Skin do mapa todo",
+    Callback = function()
+        SaveAllPlayerSkins()
+    end
+})
+
+-- Botão para salvar todas as skins no catálogo e equipá-las
+PersonagemTab:Button({
+    Title = "Salvar todas as skins no catálogo",
+    Callback = function()
+        SaveAllSkinsToCatalog()  -- Chama a função que salva e equipa todas as skins
+    end
+})
+
+-- Skin Tab
+
+-- Função para remover acessórios antes de equipar a skin
+local function RemoveAccessories()
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local removeEvent = ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("Remove")
+
+    if removeEvent and removeEvent:IsA("RemoteEvent") then
+        pcall(function()
+            removeEvent:FireServer()
+        end)
+        task.wait(0.2) -- Pequeno atraso para garantir a execução completa
+    else
+        warn("Evento 'Remove' não encontrado em ReplicatedStorage.Events.")
+    end
+end
+
+-- Função para equipar um item usando `AvatarEditor.RemoteEvent` ou `CatalogOnApplyToRealHumanoid`
+local function EquipItem(itemType, itemId, property)
+    if itemType == "accessory" then
+        -- Enviar acessórios
+        local args = {
+            [1] = "accessory",
+            [2] = itemId
+        }
+        pcall(function()
+            game:GetService("ReplicatedStorage").AvatarEditor.RemoteEvent:FireServer(unpack(args))
+        end)
+    elseif itemType == "body" then
+        -- Enviar partes do corpo e roupas
+        local args = {
+            [1] = {
+                AssetId = itemId,
+                Property = property
+            }
+        }
+        pcall(function()
+            game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(args))
+        end)
+    end
+    task.wait(0.1) -- Adiciona um pequeno atraso para evitar conflitos
+end
+
+-- Função para definir a cor de pele branca
+local function SetSkinColorToWhite()
+    local args = {
+        [1] = {
+            ["BodyColor"] = {
+                ["HeadColor"] = Color3.fromRGB(255, 255, 255),
+                ["TorsoColor"] = Color3.fromRGB(255, 255, 255),
+                ["LeftArmColor"] = Color3.fromRGB(255, 255, 255),
+                ["RightArmColor"] = Color3.fromRGB(255, 255, 255),
+                ["LeftLegColor"] = Color3.fromRGB(255, 255, 255),
+                ["RightLegColor"] = Color3.fromRGB(255, 255, 255)
+            }
+        }
+    }
+    pcall(function()
+        game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(args))
+    end)
+end
+
+-- Função para equipar a skin "Skin de cria - 1"
+local function EquipSkinDeCria1()
+    -- Acessórios
+    local accessories = {
+        10856372764, -- Filtro de Anime de Fumaça Irritado
+        125226963120631, -- Shampoo em meus olhos épicos de vampiro
+        12515745729, -- Bloqueio de Chave Prateado Inicial - G
+        4508445398, -- Brincos de Diamante
+        14820021288, -- GORRO CINZA ESTRELA BRANCA Y2K BONITO
+        76234859394000, -- Clipe de Dinheiro
+        17299824769, -- Cabelo de cena branca
+        823012694, -- Acessório Extra 1
+        746767604 -- Acessório Extra 2
+    }
+
+    for _, accessoryId in ipairs(accessories) do
+        EquipItem("accessory", accessoryId)
+    end
+
+    -- Partes do corpo
+    local bodyParts = {
+        {AssetId = 27493604, Property = "Torso"}, -- Tronco
+        {AssetId = 27493683, Property = "LeftLeg"}, -- Perna Esquerda
+        {AssetId = 27493718, Property = "RightLeg"}, -- Perna Direita
+        {AssetId = 27402580, Property = "RightArm"}, -- Braço Direito
+        {AssetId = 27402641, Property = "LeftArm"} -- Braço Esquerdo
+    }
+
+    for _, bodyPart in ipairs(bodyParts) do
+        EquipItem("body", bodyPart.AssetId, bodyPart.Property)
+    end
+
+    -- Ajustar proporções do corpo
+    local bodyScaleArgs = {
+        [1] = {
+            ["BodyScale"] = {
+                ["BodyTypeScale"] = 0,
+                ["HeadScale"] = 0.949999988079071,
+                ["HeightScale"] = 0.8999999761581421,
+                ["WidthScale"] = 0.75,
+                ["ProportionScale"] = 0
+            }
+        }
+    }
+    pcall(function()
+        game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(bodyScaleArgs))
+    end)
+
+    -- Roupas (Camisa e Calça)
+    local clothes = {
+        {AssetId = 10948394524, Property = "Pants"}, -- Calça
+        {AssetId = 11818693764, Property = "Shirt"} -- Camisa
+    }
+
+    for _, cloth in ipairs(clothes) do
+        EquipItem("body", cloth.AssetId, cloth.Property)
+    end
+
+    -- Configurar cor de pele branca
+    SetSkinColorToWhite()
+
+    -- Notificação de conclusão
+    WindUI:Notify({
+        Title = "Skin Equipada",
+        Content = "A skin 'Skin de cria - 1' foi equipada com sucesso.",
+        Duration = 5,
+    })
+end
+
+-- Função para remover acessórios antes de equipar a skin
+local function RemoveAccessories()
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local removeEvent = ReplicatedStorage:FindFirstChild("Events") and ReplicatedStorage.Events:FindFirstChild("Remove")
+
+    if removeEvent and removeEvent:IsA("RemoteEvent") then
+        pcall(function()
+            removeEvent:FireServer()
+        end)
+        task.wait(0.2) -- Pequeno atraso para garantir a execução completa
+    else
+        warn("Evento 'Remove' não encontrado em ReplicatedStorage.Events.")
+    end
+end
+
+-- Função para equipar um item usando `AvatarEditor.RemoteEvent` ou `CatalogOnApplyToRealHumanoid`
+local function EquipItem(itemType, itemId, property, accessoryType)
+    if itemType == "accessory" then
+        -- Enviar acessórios
+        if accessoryType then
+            local args = {
+                [1] = {
+                    ["AccessoryData"] = {
+                        ["Order"] = 1,
+                        ["AccessoryType"] = accessoryType,
+                        ["AssetId"] = itemId
+                    }
+                }
+            }
+            pcall(function()
+                game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(args))
+            end)
+        else
+            local args = {
+                [1] = "accessory",
+                [2] = itemId
+            }
+            pcall(function()
+                game:GetService("ReplicatedStorage").AvatarEditor.RemoteEvent:FireServer(unpack(args))
+            end)
+        end
+    elseif itemType == "body" then
+        -- Enviar partes do corpo e roupas
+        local args = {
+            [1] = {
+                AssetId = itemId,
+                Property = property
+            }
+        }
+        pcall(function()
+            game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(args))
+        end)
+    end
+    task.wait(0.1) -- Adiciona um pequeno atraso para evitar conflitos
+end
+
+-- Função para definir o tom de pele
+local function SetSkinTone(toneId)
+    local args = {
+        [1] = "tone",
+        [2] = toneId
+    }
+    pcall(function()
+        game:GetService("ReplicatedStorage").AvatarEditor.RemoteEvent:FireServer(unpack(args))
+    end)
+end
+
+-- Função para ajustar as proporções do corpo
+local function SetBodyScale()
+    local bodyScaleArgs = {
+        [1] = {
+            ["BodyScale"] = {
+                ["BodyTypeScale"] = 0,
+                ["HeadScale"] = 0.949999988079071,
+                ["HeightScale"] = 0.8999999761581421,
+                ["WidthScale"] = 0.75,
+                ["ProportionScale"] = 0
+            }
+        }
+    }
+    pcall(function()
+        game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyToRealHumanoid:FireServer(unpack(bodyScaleArgs))
+    end)
+end
+
+-- Função para equipar a skin "Skin de cria - 2"
+local function EquipSkinDeCria2()
+    -- Configurar cor de pele
+    SetSkinTone(3)
+
+    -- Roupas (Camisa e Calça)
+    EquipItem("body", 10261308650, "Shirt") -- Camisa
+    EquipItem("body", 12700740855, "Pants") -- Calça
+
+    -- Acessórios
+    local accessories = {
+        {AssetId = 5410220703, AccessoryType = Enum.AccessoryType.Hat}, -- Acessório 1
+        {AssetId = 138544145486785, AccessoryType = Enum.AccessoryType.Face}, -- Acessório 2
+        {AssetId = 16913759358, AccessoryType = Enum.AccessoryType.Hat}, -- Acessório 3
+        {AssetId = 18557294150, AccessoryType = Enum.AccessoryType.Face}, -- Acessório 4
+        {AssetId = 17728092639, AccessoryType = Enum.AccessoryType.Hair} -- Cabelo
+    }
+
+    for _, accessory in ipairs(accessories) do
+        EquipItem("accessory", accessory.AssetId, nil, accessory.AccessoryType)
+    end
+
+    -- Rosto
+    EquipItem("accessory", 66330265)
+
+    -- Partes do corpo
+    local bodyParts = {
+        {AssetId = 27493604, Property = "Torso"}, -- Tronco
+        {AssetId = 27493683, Property = "LeftLeg"}, -- Perna Esquerda
+        {AssetId = 27493718, Property = "RightLeg"}, -- Perna Direita
+        {AssetId = 27402580, Property = "RightArm"}, -- Braço Direito
+        {AssetId = 27402641, Property = "LeftArm"} -- Braço Esquerdo
+    }
+
+    for _, bodyPart in ipairs(bodyParts) do
+        EquipItem("body", bodyPart.AssetId, bodyPart.Property)
+    end
+
+    -- Ajustar proporções do corpo
+    SetBodyScale()
+
+    -- Notificação de conclusão
+    WindUI:Notify({
+        Title = "Skin Equipada",
+        Content = "A skin 'Skin de cria - 2' foi equipada com sucesso.",
+        Duration = 5,
+    })
+end
+
+-- Criação do Dropdown na SkinTab
+SkinTab:Dropdown({
+    Title = "Skins de cria corpo semi-realista",
+    Desc = "Selecione uma skin pronta para equipar.",
+    Multi = false,
+    Value = nil, -- Nenhuma skin selecionada por padrão
+    AllowNone = true, -- Permite desmarcar
+    Values = {"Skin de cria - 1", "Skin de cria - 2"}, -- Lista com o nome das skins
+    Callback = function(selectedSkin)
+        -- Remover acessórios antes de equipar a skin
+        RemoveAccessories()
+        
+        -- Equipar a skin selecionada
+        if selectedSkin == "Skin de cria - 1" then
+            EquipSkinDeCria1()
+        elseif selectedSkin == "Skin de cria - 2" then
+            EquipSkinDeCria2()
+        end
+    end
+})
+
+-- Função para equipar a skin "Skin de sapo"
+local function EquipSkinSapo()
+    local args = {
+        [1] = {
+            ["WalkAnimation"] = 0,
+            ["Accessories"] = {},
+            ["RightLegColor"] = nil,
+            ["MoodAnimation"] = 14618207727,
+            ["LeftLegColor"] = nil,
+            ["JumpAnimation"] = 0,
+            ["ProportionScale"] = 0,
+            ["BodyTypeScale"] = 1,
+            ["ClimbAnimation"] = 0,
+            ["LeftArmColor"] = nil,
+            ["Face"] = 0,
+            ["Pants"] = 0,
+            ["RightArmColor"] = nil,
+            ["DepthScale"] = 1,
+            ["WidthScale"] = 1,
+            ["SwimAnimation"] = 0,
+            ["RightArm"] = 17898082257,
+            ["GraphicTShirt"] = 0,
+            ["Head"] = 17898084158,
+            ["Shirt"] = 0,
+            ["RightLeg"] = 17898082268,
+            ["RunAnimation"] = 0,
+            ["Torso"] = 17898081687,
+            ["FallAnimation"] = 0,
+            ["TorsoColor"] = nil,
+            ["IdleAnimation"] = 0,
+            ["LeftArm"] = 17898082237,
+            ["HeadScale"] = 1,
+            ["HeightScale"] = 1,
+            ["HeadColor"] = nil,
+            ["LeftLeg"] = 17898081542
+        }
+    }
+
+    pcall(function()
+        game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyOutfit:FireServer(unpack(args))
+    end)
+
+    WindUI:Notify({
+        Title = "Skin Equipada",
+        Content = "A skin 'Skin de sapo' foi equipada com sucesso.",
+        Duration = 5,
+    })
+end
+
+-- Função para equipar a skin "Skin de capivara"
+local function EquipSkinCapivara()
+    local args = {
+        [1] = {
+            ["WalkAnimation"] = 0,
+            ["Accessories"] = {},
+            ["RightLegColor"] = nil,
+            ["MoodAnimation"] = 14618207727,
+            ["LeftLegColor"] = nil,
+            ["JumpAnimation"] = 0,
+            ["ProportionScale"] = 0,
+            ["BodyTypeScale"] = 1,
+            ["ClimbAnimation"] = 0,
+            ["LeftArmColor"] = nil,
+            ["Face"] = 0,
+            ["Pants"] = 0,
+            ["RightArmColor"] = nil,
+            ["DepthScale"] = 1,
+            ["WidthScale"] = 1,
+            ["SwimAnimation"] = 0,
+            ["RightArm"] = 131681603005543,
+            ["GraphicTShirt"] = 0,
+            ["Head"] = 109137349673343,
+            ["Shirt"] = 0,
+            ["RightLeg"] = 98454038846291,
+            ["RunAnimation"] = 0,
+            ["Torso"] = 129341990941517,
+            ["FallAnimation"] = 0,
+            ["TorsoColor"] = nil,
+            ["IdleAnimation"] = 0,
+            ["LeftArm"] = 107032747230578,
+            ["HeadScale"] = 1,
+            ["HeightScale"] = 1,
+            ["HeadColor"] = nil,
+            ["LeftLeg"] = 93110795723782
+        }
+    }
+
+    pcall(function()
+        game:GetService("ReplicatedStorage").BloxbizRemotes.CatalogOnApplyOutfit:FireServer(unpack(args))
+    end)
+
+    WindUI:Notify({
+        Title = "Skin Equipada",
+        Content = "A skin 'Skin de capivara' foi equipada com sucesso.",
+        Duration = 5,
+    })
+end
+
+-- Criação do DropDown na SkinTab
+SkinTab:Dropdown({
+    Title = "Skin de Animais",
+    Desc = "Selecione uma skin de animal para equipar.",
+    Multi = false,
+    Value = nil, -- Nenhuma skin selecionada por padrão
+    AllowNone = true, -- Permite desmarcar
+    Values = {"Skin de sapo", "Skin de capivara"}, -- Lista de skins
+    Callback = function(selectedSkin)
+        -- Equipar a skin selecionada
+        if selectedSkin == "Skin de sapo" then
+            EquipSkinSapo()
+        elseif selectedSkin == "Skin de capivara" then
+            EquipSkinCapivara()
+        end
+    end
+})
+
+-- Input para salvar nome de skin
+SkinTab:Input({
+    Title = "Nome da Skin",
+    PlaceholderText = "Digite o nome...",
+    Callback = function(value)
+        SavedSkinName = value
+    end
+})
+
+-- Botão para salvar a skin
+SkinTab:Button({
+    Title = "Salvar Skin",
+    Desc = "Salva a skin atual com o nome fornecido",
+    Callback = function()
+        if SavedSkinName ~= "" then
+            local args = { "create", SavedSkinName }
+            ReplicatedStorage.AvatarEditor.RemoteEvent:FireServer(unpack(args))
+            WindUI:Notify({
+                Title = "Skin Salva",
+                Content = "Skin salva: " .. SavedSkinName,
+                Duration = 5,
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Defina um nome para salvar.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+StalkTab:Input({
+    Title = "Digite o Nome do Jogador",
+    Desc = "Insira o nome ou display name do jogador para buscar informações.",
+    PlaceholderText = "Nome do jogador",
+    Callback = function(playerName)
+        -- Função para obter informações do jogador
+        local function GetPlayerInfo(playerName)
+            local players = game.Players:GetPlayers()
+            local playerFound
+
+            -- Procura o jogador pelo nome ou display name
+            for _, player in pairs(players) do
+                if player.Name:lower():find(playerName:lower()) or player.DisplayName:lower():find(playerName:lower()) then
+                    playerFound = player
+                    break
+                end
+            end
+
+            -- Se encontrar o jogador, exibe as informações
+            if playerFound then
+                WindUI:Notify({
+                    Title = "Informações do Jogador",
+                    Content = "Nome: " .. playerFound.Name .. "\n" ..
+                              "Display Name: " .. playerFound.DisplayName .. "\n" ..
+                              "Conta criada há: " .. playerFound.AccountAge .. " dias",
+                    Duration = 8,
+                })
+            else
+                -- Notificação se o jogador não for encontrado
+                WindUI:Notify({
+                    Title = "Blessed Hub",
+                    Content = "Jogador não encontrado.",
+                    Duration = 5,
+                })
+            end
+        end
+
+        -- Chama a função para buscar as informações
+        if playerName and playerName ~= "" then
+            GetPlayerInfo(playerName)
+        end
+    end
+})
+
+-- Serviços necessários
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+-- Variáveis globais
+local SelectedPlayer = nil
+local ViewPlayerActive = false
+local LoopTeleportActive = false
+
+-- Função para buscar jogador por DisplayName ou Username
+local function GetPlayerByName(query)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #query) == query:lower() or  
+           player.DisplayName:lower():sub(1, #query) == query:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Função para ativar/desativar a visualização do jogador
+local function ToggleViewPlayer(state)
+    if state then
+        if SelectedPlayer and SelectedPlayer.Character and SelectedPlayer.Character:FindFirstChild("Humanoid") then
+            ViewPlayerActive = true
+            Workspace.CurrentCamera.CameraSubject = SelectedPlayer.Character.Humanoid
+            WindUI:Notify({
+                Title = "Visualizar Jogador",
+                Content = "Agora visualizando: " .. SelectedPlayer.Name,
+                Duration = 5
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Nenhum jogador válido selecionado.",
+                Duration = 5
+            })
+        end
+    else
+        ViewPlayerActive = false
+        Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
+        WindUI:Notify({
+            Title = "Visualizar Jogador",
+            Content = "Visualização desativada.",
+            Duration = 5
+        })
+    end
+end
+
+-- Função para teleportar até o jogador
+local function TeleportToPlayer()
+    if SelectedPlayer and SelectedPlayer.Character and SelectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = SelectedPlayer.Character.HumanoidRootPart.CFrame
+        WindUI:Notify({
+            Title = "Teleportado",
+            Content = "Você foi teleportado para: " .. SelectedPlayer.Name,
+            Duration = 5
+        })
+    else
+        WindUI:Notify({
+            Title = "Erro",
+            Content = "Não foi possível teleportar. Jogador inválido.",
+            Duration = 5
+        })
+    end
+end
+
+-- Função para ativar/desativar LoopTeleport
+local function ToggleLoopTeleport(state)
+    LoopTeleportActive = state
+    if state then
+        WindUI:Notify({
+            Title = "LoopTeleport Ativado",
+            Content = "Agora você será teletransportado continuamente para: " .. (SelectedPlayer and SelectedPlayer.Name or "Nenhum jogador selecionado"),
+            Duration = 5
+        })
+
+        -- Loop de teleporte
+        task.spawn(function()
+            while LoopTeleportActive do
+                if SelectedPlayer and SelectedPlayer.Character and SelectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = SelectedPlayer.Character.HumanoidRootPart.CFrame
+                end
+                task.wait(0.5) -- Pequeno delay para evitar lag
+            end
+        end)
+    else
+        WindUI:Notify({
+            Title = "LoopTeleport Desativado",
+            Content = "Você não será mais teleportado automaticamente.",
+            Duration = 5
+        })
+    end
+end
+
+-- Adiciona um Input para selecionar jogadores
+local PlayerInput = TeleportTab:Input({
+    Title = "Selecionar Jogador",
+    Desc = "Digite as iniciais do nome ou Display Name",
+    PlaceholderText = "Digite as iniciais...",
+    Finished = true,
+    Callback = function(value)
+        SelectedPlayer = GetPlayerByName(value)
+        if SelectedPlayer then
+            WindUI:Notify({
+                Title = "Jogador Selecionado",
+                Content = "Agora selecionado: " .. SelectedPlayer.Name,
+                Duration = 5
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Jogador não encontrado.",
+                Duration = 5
+            })
+        end
+    end
+})
+
+-- Adiciona um Toggle para visualizar o jogador
+local ViewToggle = TeleportTab:Toggle({
+    Title = "Visualizar Jogador",
+    Desc = "Alterna a visualização da câmera para o jogador selecionado.",
+    Value = false,
+    Callback = function(state)
+        ToggleViewPlayer(state)
+    end
+})
+
+-- Adiciona um botão para teleportar até o jogador
+local TeleportButton = TeleportTab:Button({
+    Title = "Teleportar para Jogador",
+    Desc = "Teleporta até o jogador selecionado.",
+    Callback = function()
+        TeleportToPlayer()
+    end
+})
+
+-- Adiciona um Toggle para LoopTeleport no jogador
+local LoopTeleportToggle = TeleportTab:Toggle({
+    Title = "LoopTeleport",
+    Desc = "Ativa o teleporte contínuo para o jogador selecionado.",
+    Value = false,
+    Callback = function(state)
+        ToggleLoopTeleport(state)
+    end
+})
+
+local clickTpConnection -- Variável para armazenar a conexão
+
+TeleportTab:Toggle({
+    Title = "Click TP",
+    Desc = "Ative para teletransportar para onde clicar.",
+    Value = false,
+    Callback = function(state)
+        local Players = game:GetService("Players")
+        local Mouse = Players.LocalPlayer:GetMouse()
+
+        -- Função para teletransportar
+        local function teleportToClick(position)
+            local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            humanoidRootPart.CFrame = CFrame.new(position) -- Define o CFrame do jogador na posição clicada
+        end
+
+        -- Ativa o Click TP
+        if state then
+            clickTpConnection = Mouse.Button1Down:Connect(function()
+                local target = Mouse.Hit.p -- Obtém a posição clicada no mundo
+                teleportToClick(target) -- Teletransporta para a posição clicada
+                WindUI:Notify({
+                    Title = "Teleportado",
+                    Content = "Você foi teletransportado para a posição clicada.",
+                    Duration = 5,
+                })
+            end)
+        else
+            -- Desativa o Click TP e desconecta o evento
+            if clickTpConnection then
+                clickTpConnection:Disconnect()
+                clickTpConnection = nil
+            end
+            WindUI:Notify({
+                Title = "Desativado",
+                Content = "Click TP foi desativado.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Fonte",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(0, 17, 0) -- Teleporta para a posição 0, 17, 0
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Porta de Ferro",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(0, 25, -72) -- Teleporta para a posição 0, 25, -72
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Placa de Doar Robux",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(1, 15, 76) -- Teleporta para a posição 0, 25, -72
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Final do Mapa - 1",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(-28, 3, 1006) -- Teleporta para a posição 0, 25, -72
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Final do Mapa - 2",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(982, 3, 47) -- Teleporta para a posição 0, 25, -72
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Final do Mapa - 3",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(229, 3, -1016) -- Teleporta para a posição 0, 25, -72
+    end
+})
+
+TeleportTab:Button({
+    Title = "Teleportar para Final do Mapa - 4",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoidRootPart.CFrame = CFrame.new(-1007, 3, 31) -- Teleporta para a posição 0, 25, -72
+    end
+})
+
+-- Variáveis Globais
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local SelectedPlayer = nil
+local backpackActive = false
+local bangActive = false
+local ViewPlayerActive = false
+
+-- Função para encontrar o jogador pelo nome ou display name
+local function GetPlayerByName(query)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #query) == query:lower() or player.DisplayName:lower():sub(1, #query) == query:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Função para visualizar o jogador
+local function ToggleViewPlayer(state)
+    if state then
+        if SelectedPlayer and SelectedPlayer.Character and SelectedPlayer.Character:FindFirstChild("Humanoid") then
+            ViewPlayerActive = true
+            game.Workspace.CurrentCamera.CameraSubject = SelectedPlayer.Character.Humanoid
+            WindUI:Notify({
+                Title = "Visualizar Jogador",
+                Content = "Visualizando " .. SelectedPlayer.Name,
+                Duration = 5,
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Nenhum jogador válido selecionado.",
+                Duration = 5,
+            })
+        end
+    else
+        ViewPlayerActive = false
+        game.Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid
+        WindUI:Notify({
+            Title = "Visualização Desativada",
+            Content = "Visualização do jogador foi desativada.",
+            Duration = 5,
+        })
+    end
+end
+
+-- Função para realizar o bang no jogador
+local function ToggleBang(state)
+    bangActive = state
+    if state then
+        if SelectedPlayer then
+            while bangActive and SelectedPlayer and SelectedPlayer.Character do
+                local rootPart = SelectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = rootPart.CFrame * CFrame.new(0, 0, 1.3)
+                    task.wait(0.08)
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = rootPart.CFrame * CFrame.new(0, 0, 1.6)
+                    task.wait(0.08)
+                else
+                    break
+                end
+            end
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Nenhum jogador válido selecionado.",
+                Duration = 5,
+            })
+        end
+    end
+end
+
+-- Input único para selecionar o jogador
+TrollTab:Input({
+    Title = "Selecionar Jogador",
+    Desc = "Digite as iniciais ou o display name do jogador.",
+    PlaceholderText = "Ex: joao",
+    Callback = function(value)
+        SelectedPlayer = GetPlayerByName(value)
+        if SelectedPlayer then
+            WindUI:Notify({
+                Title = "Jogador Selecionado",
+                Content = "Você selecionou: " .. SelectedPlayer.Name,
+                Duration = 5,
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Jogador não encontrado.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+-- Toggle para visualizar jogador
+TrollTab:Toggle({
+    Title = "Visualizar Jogador",
+    Desc = "Ative para visualizar o jogador selecionado.",
+    Value = false,
+    Callback = function(state)
+        ToggleViewPlayer(state)
+    end
+})
+
+-- Toggle para Bang
+TrollTab:Toggle({
+    Title = "Bang Jogador",
+    Desc = "Ative para executar o bang no jogador selecionado.",
+    Value = false,
+    Callback = function(state)
+        ToggleBang(state)
+    end
+})
+
+-- Lista com os nomes dos jogadores
+local playerNames = {}
+local SelectedPlayer
+local connection -- Variável para armazenar a conexão com o evento de chat
+
+-- Popula a lista com os nomes dos jogadores no servidor
+for _, player in ipairs(game.Players:GetPlayers()) do
+    table.insert(playerNames, player.DisplayName)
+end
+
+-- Dropdown para selecionar o jogador
+TrollTab:Dropdown({
+    Title = "Selecionar Jogador",
+    Desc = "Selecione um jogador para imitar no chat.",
+    Multi = false,
+    Value = playerNames[1] or "", -- Valor inicial
+    AllowNone = true,
+    Values = playerNames, -- Lista de jogadores
+    Callback = function(selectedName)
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            if player.DisplayName == selectedName then
+                SelectedPlayer = player -- Define o jogador selecionado
+                WindUI:Notify({
+                    Title = "Jogador Selecionado",
+                    Content = "Você selecionou: " .. player.Name,
+                    Duration = 5,
+                })
+                break
+            end
+        end
+    end
+})
+
+-- Toggle para ativar/desativar a imitação no chat
+TrollTab:Toggle({
+    Title = "Imitar Jogador Selecionado",
+    Desc = "Ative para imitar o jogador selecionado no chat.",
+    Value = false, -- Toggle inicialmente desativado
+    Callback = function(state)
+        if state then
+            if SelectedPlayer then
+                -- Conecta ao evento de envio de mensagens do jogador selecionado
+                connection = SelectedPlayer.Chatted:Connect(function(message)
+                    pcall(function()
+                        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(message)
+                    end)
+                end)
+                WindUI:Notify({
+                    Title = "Imitação Ativada",
+                    Content = "Imitando o jogador: " .. SelectedPlayer.Name,
+                    Duration = 5,
+                })
+            else
+                WindUI:Notify({
+                    Title = "Erro",
+                    Content = "Nenhum jogador selecionado.",
+                    Duration = 5,
+                })
+            end
+        else
+            -- Desconecta o evento para parar de imitar
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+            WindUI:Notify({
+                Title = "Imitação Desativada",
+                Content = "Você parou de imitar o jogador.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+-- Função para encontrar jogador pelo nome ou DisplayName
+local function FindPlayer(query)
+    query = query:lower()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.Name:lower():find(query) or player.DisplayName:lower():find(query) then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Variável para armazenar o jogador selecionado
+local SelectedPlayer = nil
+
+-- Input para selecionar jogador
+TrollTab:Input({
+    Title = "Selecione o Jogador",
+    PlaceholderText = "Digite as iniciais do nome...",
+    Callback = function(value)
+        SelectedPlayer = FindPlayer(value)
+        if SelectedPlayer then
+            WindUI:Notify({
+                Title = "Jogador Selecionado",
+                Content = "Jogador: " .. SelectedPlayer.DisplayName,
+                Duration = 5,
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Nenhum jogador encontrado.",
+                Duration = 5,
+            })
+        end
+    end
+})
+
+-- Toggle 1: Bang
+local BangActive = false
+TrollTab:Toggle({
+    Title = "Bang",
+    Callback = function(state)
+        BangActive = state
+        if BangActive and SelectedPlayer then
+            local animationId = "10714068222"
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            local activeAnimation
+            if humanoid then
+                local animation = Instance.new("Animation")
+                animation.AnimationId = "rbxassetid://" .. animationId
+                activeAnimation = humanoid:LoadAnimation(animation)
+                activeAnimation:Play()
+                activeAnimation:AdjustSpeed(2)
+            end
+
+            coroutine.wrap(function()
+                while BangActive do
+                    if SelectedPlayer and SelectedPlayer.Character then
+                        local targetHRP = SelectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        local localHRP = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if targetHRP and localHRP then
+                            localHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 1.5)
+                        end
+                    else
+                        BangActive = false
+                    end
+                    task.wait(0.1)
+                end
+                if activeAnimation then
+                    activeAnimation:Stop()
+                end
+            end)()
+        end
+    end
+})
+
+-- Toggle 2: Get Banged
+local GetBangedActive = false
+TrollTab:Toggle({
+    Title = "Get Banged",
+    Callback = function(state)
+        GetBangedActive = state
+        if GetBangedActive and SelectedPlayer then
+            local animationId = "10714360343"
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            local activeAnimation
+            if humanoid then
+                local animation = Instance.new("Animation")
+                animation.AnimationId = "rbxassetid://" .. animationId
+                activeAnimation = humanoid:LoadAnimation(animation)
+                activeAnimation:Play()
+            end
+
+            coroutine.wrap(function()
+                while GetBangedActive do
+                    if SelectedPlayer and SelectedPlayer.Character then
+                        local targetHRP = SelectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        local localHRP = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if targetHRP and localHRP then
+                            localHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, -1.5)
+                        end
+                    else
+                        GetBangedActive = false
+                    end
+                    task.wait(0.1)
+                end
+                if activeAnimation then
+                    activeAnimation:Stop()
+                end
+            end)()
+        end
+    end
+})
+
+-- Toggle 3: Suck
+local SuckActive = false
+TrollTab:Toggle({
+    Title = "Suck",
+    Callback = function(state)
+        SuckActive = state
+        if SuckActive and SelectedPlayer then
+            local originalGravity = workspace.Gravity
+            workspace.Gravity = 0
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+            local activeAnimation
+            if humanoid then
+                local animation = Instance.new("Animation")
+                animation.AnimationId = "rbxassetid://5918726674"
+                activeAnimation = humanoid:LoadAnimation(animation)
+                activeAnimation:Play()
+            end
+
+            coroutine.wrap(function()
+                while SuckActive do
+                    if SelectedPlayer and SelectedPlayer.Character then
+                        local targetTorso = SelectedPlayer.Character:FindFirstChild("LowerTorso")
+                        local localHRP = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if targetTorso and localHRP then
+                            localHRP.CFrame = targetTorso.CFrame * CFrame.new(0, -2.3, -1.0) * CFrame.Angles(0, math.pi, 0)
+                        end
+                    else
+                        SuckActive = false
+                    end
+                    task.wait(0.1)
+                end
+                if activeAnimation then
+                    activeAnimation:Stop()
+                end
+                workspace.Gravity = originalGravity
+            end)()
+        end
+    end
+})
+
+-- Toggle 4: Get Sucked
+local GetSuckedActive = false
+TrollTab:Toggle({
+    Title = "Get Sucked",
+    Callback = function(state)
+        GetSuckedActive = state
+        if GetSuckedActive and SelectedPlayer then
+            local originalGravity = workspace.Gravity
+            workspace.Gravity = 0
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+            local activeAnimation
+            if humanoid then
+                local animation = Instance.new("Animation")
+                animation.AnimationId = "rbxassetid://5918726674"
+                activeAnimation = humanoid:LoadAnimation(animation)
+                activeAnimation:Play()
+            end
+
+            coroutine.wrap(function()
+                while GetSuckedActive do
+                    if SelectedPlayer and SelectedPlayer.Character then
+                        local targetHRP = SelectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        local localHRP = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if targetHRP and localHRP then
+                            localHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 2.3, -1.1) * CFrame.Angles(0, math.pi, 0)
+                        end
+                    else
+                        GetSuckedActive = false
+                    end
+                    task.wait(0.1)
+                end
+                if activeAnimation then
+                    activeAnimation:Stop()
+                end
+                workspace.Gravity = originalGravity
+            end)()
+        end
+    end
+})
+
+-- Botão: Jerk
+TrollTab:Button({
+    Title = "Jerk",
+    Desc = "Clique para iniciar a ação.",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastefy.app/YZoglOyJ/raw"))()
+    end
+})
+
+-- Adiciona o botão à aba "Extras"
+ExtraTab:Button({
+    Title = "Executar Infinite Yield",
+    Desc = "Clique para executar o script Infinite Yield.",
+    Callback = function()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+        end)
+
+        if success then
+            WindUI:Notify({
+                Title = "Script Executado",
+                Content = "Infinite Yield foi executado com sucesso.",
+                Duration = 5,
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Falha ao executar o script: " .. tostring(err),
+                Duration = 5,
+            })
+        end
+    end
+})
+
+--Window Tab
+
+WindowTab:Button({
+    Title = "Relogar",
+    Desc = "Clique aqui para relogar no jogo.",
+    Callback = function()
+        TeleportService:Teleport(PlaceId, Player) 
+    end
+})
+
+-- Bypass Tab
+
+function chat(msg)
+    if game:GetService("TextChatService").ChatVersion == Enum.ChatVersion.TextChatService then
+        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(msg)
+    else
+        game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+    end
+end
+
+local method = nil
+
+BypassTab:Dropdown({
+    Title = "Method",
+    Values = {
+        "ěx́ǎḿṕĺě",
+        "éxạmṕĺe",
+        "ẹ̲х̲ạ̲ṃ̲р̲ḷ̲ẹ̲",
+        "e>x>a>m>p>l>e",
+        "￵example (patched)",
+        "3></-\\/\\/\\p|_3"
+    },
+    Multi = false,
+    Default = "ěx́ǎḿṕĺě",
+    Callback = function(val)
+        method = val
+    end
+})
+
+local function bypasstext(text, method)
+    local bypassMethods = {
+        ["ěx́ǎḿṕĺě"] = function(word)
+            local accents = {
+                a = "ǎ", b = "ḃ", c = "ć", d = "d́", e = "ě", f = "ḟ",
+                g = "ġ", h = "ḣ", i = "í", j = "j́", k = "ḱ", l = "ĺ",
+                m = "ḿ", n = "n̋", o = "ō", p = "ṕ", q = "q́", r = "ŕ",
+                s = "ś", t = "t̋", u = "ū", v = "v̇", w = "ẃ", x = "x́",
+                y = "ý", z = "ź", A = "Ǎ", B = "Ḃ", C = "Ć", D = "D́",
+                E = "Ě", F = "Ḟ", G = "Ġ", H = "Ḣ", I = "Í", J = "J́",
+                K = "Ḱ", L = "Ĺ", M = "Ḿ", N = "N̋", O = "Ō", P = "Ṕ",
+                Q = "Q́", R = "Ŕ", S = "Ś", T = "T̋", U = "Ū", V = "V̇",
+                W = "Ẃ", X = "X́", Y = "Ý", Z = "Ź"
+            }
+            return (word:gsub(".", accents))
+        end,
+        ["e>x>a>m>p>l>e"] = function(word)
+            return word:gsub(".", "%1>")
+        end,
+        ["3></-\\/\\/\\p|_3"] = function(word)
+            local leet = { a = "3", e = "3", i = "1", o = "0", u = "|_|",
+                t = "7", s = "$", h = "#", m = "/\\/\\", n = "/\\/", l = "|_",
+                x = "><", y = "`/", z = "2"
+            }
+            return (word:gsub(".", leet))
+        end
+    }
+
+    return bypassMethods[method] and bypassMethods[method](text) or text
+end
+
+BypassTab:Input({
+    Title = "Chat Message(não funcionando)",
+    Placeholder = "Type here...",
+    Callback = function(value)
+        local bypassedText = bypasstext(value, method)
+        chat(bypassedText)
+        Fluent:Notify({
+            Title = "Message Sent",
+            Content = "Your bypassed message was sent.",
+            Duration = 3
+        })
+    end
+})
+
+-- Botão no BypassTab para permitir o jogador entrar no Voice Chat
+local unBanVoiceButton = BypassTab:Button({
+    Title = "UnBan Voice Chat",  -- Nome do botão
+    PlaceholderText = "Clique para entrar no Voice Chat",
+    Callback = function()
+        -- Tenta entrar no Voice Chat
+        local success, errorMessage = pcall(function()
+            game:GetService("VoiceChatService"):joinVoice()
+        end)
+
+        if success then
+            WindUI:Notify({
+                Title = "Sucesso",
+                Content = "Você entrou no Voice Chat!",
+                Duration = 2
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Não foi possível entrar no Voice Chat. Erro: " .. errorMessage,
+                Duration = 2
+            })
+        end
+    end
+})
+
+--Music Tab
+
+local currentSound  -- Variável global para armazenar o som atual
+
+-- Função para tocar a música selecionada
+local function playMusic(songID)
+    if currentSound then
+        currentSound:Stop()  -- Para qualquer música tocando antes
+    end
+
+    currentSound = Instance.new("Sound")
+    currentSound.Parent = game.Workspace
+    currentSound.SoundId = "rbxassetid://" .. songID  -- Define o ID da música
+    currentSound.Volume = 0.5  -- Volume inicial
+    currentSound.Looped = false
+    currentSound:Play()  -- Toca a música
+end
+
+-- Função para parar a música
+local function stopMusic()
+    if currentSound then
+        currentSound:Stop()  -- Para a música que está tocando
+        WindUI:Notify({
+            Title = "Música Parada",
+            Content = "A música foi parada.",
+            Duration = 2
+        })
+    end
+end
+
+-- Input para inserir ID de música manualmente
+local MusicInput
+MusicInput = MusicTab:Input({
+    Title = "Digite o ID da Música",
+    Placeholder = "Insira o ID aqui...",
+    Callback = function(value)
+        MusicInput.Value = value  -- Armazena o ID digitado
+    end
+})
+
+-- **Botão para tocar a música digitada no Input**
+MusicTab:Button({
+    Title = "Tocar Música do Input",
+    Callback = function()
+        local songID = tonumber(MusicInput.Value)  -- Converte para número
+
+        if songID then
+            playMusic(songID)  -- Toca a música digitada
+            WindUI:Notify({
+                Title = "Música Personalizada",
+                Content = "Tocando ID: " .. songID,
+                Duration = 2
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Por favor, insira um ID válido!",
+                Duration = 2
+            })
+        end
+    end
+})
+
+-- DropDown para selecionar músicas de Pagode
+local PagodeDropdown = MusicTab:Dropdown({
+    Title = "Pagode",
+    Desc = "Selecione um pagode para ouvir",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Pagode 1",  -- ID: 1838888602
+        "Pagode 2",  -- ID: 113504863495384
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Pagode 1" then
+            songID = "1838888602"
+        elseif selectedMusic == "Pagode 2" then
+            songID = "113504863495384"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Pagode Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+local SertanejoMusicDropdown = MusicTab:Dropdown({
+    Title = "Sertanejo",
+    Desc = "Escolha uma música aleatória para ouvir",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Ensinou Amar",  -- ID: 71570576570141
+        "Cama Vazia",  -- ID: 125220632932817
+        "Volta Que Eu Te Amo",  -- ID: 140095882383991
+        "Arrocha",  -- ID: 74812784884330
+        "Esquema Confirmado",  -- ID: 134035788881796
+        "Sofrência 1",  -- ID: 125220632932817
+        "Sofrência 2",  -- ID: 84773737820526
+        "Sofrência 3",  -- ID: 140095882383991
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Ensinou Amar" then
+            songID = "71570576570141"
+        elseif selectedMusic == "Cama Vazia" then
+            songID = "125220632932817"
+        elseif selectedMusic == "Volta Que Eu Te Amo" then
+            songID = "140095882383991"
+        elseif selectedMusic == "Arrocha" then
+            songID = "74812784884330"
+        elseif selectedMusic == "Esquema Confirmado" then
+            songID = "134035788881796"
+        elseif selectedMusic == "Sofrência 1" then
+            songID = "125220632932817"
+        elseif selectedMusic == "Sofrência 2" then
+            songID = "84773737820526"
+        elseif selectedMusic == "Sofrência 3" then
+            songID = "140095882383991"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Sertanejo Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+-- DropDown para selecionar músicas de Funk
+local FunkDropdown = MusicTab:Dropdown({
+    Title = "Funk",
+    Desc = "Selecione um funk para ouvir",
+    Multi = false,
+    Value = nil,
+    AllowNone = true,
+    Values = {
+        "Fuga na VT",   -- ID: 131891110268352
+        "Dim Dim Dom",   -- ID: 93993692602344
+        "Ela Sentou Gostou, Kikou e Gostou",   -- ID: 81791559745283
+        "Marciin (Funk top)",   -- ID: 87789757659257
+        "Se Prepara",   -- ID: 98063604604756
+        "Papi",   -- ID: 139086778929473
+        "Halloween",   -- ID: 83875675100660
+        "Voando Alto",  -- ID: 110475831724424
+        "Corpo Suado",  -- ID: 130664328738685
+        "Spring Love",   -- ID: 102930993846348
+        "12 Do Cinga",   -- ID: 80112997683181
+        "Os Cria",  -- ID: 104498738218748
+        "Maria Penha",  -- ID: 125193414124436
+        "Me Apaixonei",  -- ID: 113456637133741
+        "Funk House",  -- ID: 131201909953525
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Fuga na VT" then
+            songID = "131891110268352"
+        elseif selectedMusic == "Dim Dim Dom" then
+            songID = "93993692602344"
+        elseif selectedMusic == "Ela Sentou Gostou, Kikou e Gostou" then
+            songID = "81791559745283"
+        elseif selectedMusic == "Marciin (Funk top)" then
+            songID = "87789757659257"
+        elseif selectedMusic == "Se Prepara" then
+            songID = "98063604604756"
+        elseif selectedMusic == "Papi" then
+            songID = "139086778929473"
+        elseif selectedMusic == "Halloween" then
+            songID = "83875675100660"
+        elseif selectedMusic == "Voando Alto" then
+            songID = "110475831724424"
+        elseif selectedMusic == "Corpo Suado" then
+            songID = "130664328738685"
+        elseif selectedMusic == "Spring Love" then
+            songID = "102930993846348"
+        elseif selectedMusic == "12 Do Cinga" then
+            songID = "80112997683181"
+        elseif selectedMusic == "Os Cria" then
+            songID = "104498738218748"
+        elseif selectedMusic == "Maria Penha" then
+            songID = "125193414124436"
+        elseif selectedMusic == "Me Apaixonei" then
+            songID = "113456637133741"
+        elseif selectedMusic == "Funk House" then
+            songID = "131201909953525"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Funk Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+local TrapDropdown = MusicTab:Dropdown({
+    Title = "Trap",
+    Desc = "Selecione um trap para ouvir",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Levanta",  -- ID: 100447808642458
+        "Em Breve?",  -- ID: 0
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Levanta" then
+            songID = "100447808642458"
+        elseif selectedMusic == "Em Breve?" then
+            songID = "0"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Trap Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+local BeatDropdown = MusicTab:Dropdown({
+    Title = "Beat",
+    Desc = "Músicas só o beat ou 90% beat",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Catucada",  -- ID: 118875336917956
+        "Piranha Vem",  -- ID: 124477584275910
+        "Ooi",  -- ID: 130944058486069
+        "Brotar na treta",  -- ID: 87645805996301
+        "Apaga Luz Apaga Tudo",  -- ID: 117185503354295
+        "CRAZY",  -- ID: 136339454073308
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Catucada" then
+            songID = "118875336917956"
+        elseif selectedMusic == "Piranha Vem" then
+            songID = "124477584275910"
+        elseif selectedMusic == "Ooi" then
+            songID = "130944058486069"
+        elseif selectedMusic == "Brotar na treta" then
+            songID = "87645805996301"
+        elseif selectedMusic == "Apaga Luz Apaga Tudo" then
+            songID = "117185503354295"
+        elseif selectedMusic == "CRAZY" then
+            songID = "136339454073308"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Beat Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+-- DropDown para selecionar músicas Aleatórias
+local RandomMusicDropdown = MusicTab:Dropdown({
+    Title = "Música Aleatória",
+    Desc = "Escolha uma música aleatória para ouvir",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Música 1",  -- ID: 0
+        "Funk Goofy",  -- ID: 105832154444494
+        "Dj Bactéria",  -- ID: 94718473830640
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == " 1" then
+            songID = "0"
+        elseif selectedMusic == "Funk Goofy" then
+            songID = "105832154444494"
+        elseif selectedMusic == "Dj Bactéria" then
+            songID = "94718473830640"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Música Aleatória Selecionada",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+local PhonkMusicDropdown = MusicTab:Dropdown({
+    Title = "Phonk",
+    Desc = "Escolha uma música aleatória para ouvir",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Bounce vs China",  -- ID: 136437730772816
+        "Broto na Favela",  -- ID: 113456637133741
+        " 3",  -- ID: 0
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Bounce vs China" then
+            songID = "136437730772816"
+        elseif selectedMusic == "Broto na Favela" then
+            songID = "113456637133741"
+        elseif selectedMusic == " 3" then
+            songID = "0"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Phonk Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+local SpeedSlowMusicDropdown = MusicTab:Dropdown({
+    Title = "Speed & Slow",
+    Desc = "Pode ser Música mais rapidinha ou mais devagar",
+    Multi = false,
+    Value = nil,  
+    AllowNone = true,
+    Values = {
+        "Asfalto (slow)",  -- ID: 95830510652792
+        "Asfalto (speed)",  -- ID: 134420076960879
+        "Vein Funk (speed)",  -- ID: 77501611905348
+        "Funksera (speed)",  -- ID: 88533597230559
+        "Menina Verde (speed)",  -- ID: 131228990842116
+        "Praia (slow)",  -- ID: 131228990842116
+        "Praia (Ultra slow)",  -- ID: 119124779781239
+        "ULTCHILL (speed)",  -- ID: 85465107863360
+        "ULTCHILL (slow)",  -- ID: 103283136727523
+        "Montagem Espaço (slow)",  -- ID: 128257074701536
+    },
+    Callback = function(selectedMusic)
+        local songID = ""
+        if selectedMusic == "Asfalto (slow)" then
+            songID = "95830510652792"
+        elseif selectedMusic == "Asfalto (speed)" then
+            songID = "134420076960879"
+        elseif selectedMusic == "Vein Funk (speed)" then
+            songID = "77501611905348"
+        elseif selectedMusic == "Funksera (speed)" then
+            songID = "88533597230559"
+        elseif selectedMusic == "Menina Verde (speed)" then
+            songID = "131228990842116"
+        elseif selectedMusic == "Praia (slow)" then
+            songID = "112068892721408"
+        elseif selectedMusic == "Praia (Ultra slow)" then
+            songID = "119124779781239"
+        elseif selectedMusic == "ULTCHILL (speed)" then
+            songID = "85465107863360"
+        elseif selectedMusic == "ULTCHILL (slow)" then
+            songID = "103283136727523"
+        elseif selectedMusic == "Montagem Espaço (slow)" then
+            songID = "128257074701536"
+        end
+
+        playMusic(songID)  
+        WindUI:Notify({
+            Title = "Speed & Slow Selecionado",
+            Content = "Tocando: " .. selectedMusic,
+            Duration = 2
+        })
+    end
+})
+
+-- Slider para controlar o volume
+local VolumeSlider = MusicTab:Slider({
+    Title = "Volume da Música",
+    Locked = false,
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 100,  
+        Default = 20,  
+    },
+    Callback = function(value)
+        if currentSound then
+            currentSound.Volume = value / 100  
+            WindUI:Notify({
+                Title = "Volume Ajustado",
+                Content = "Volume: " .. value,
+                Duration = 2
+            })
+        end
+    end
+})
+
+VolumeSlider:Set(20)  
+
+-- Botão para parar a música
+MusicTab:Button({
+    Title = "Parar Música",
+    Callback = function()
+        stopMusic()  
+    end
+})
+
+
+--Parceiros Tab
+
+-- Input para inserir o JobId do servidor desejado
+local JobIdInput = ParceirosTab:Input({
+    Title = "JobId do Servidor",
+    Placeholder = "Cole o JobId aqui...",
+    Callback = function(value)
+        jobId = value -- Armazena o JobId digitado
+    end
+})
+
+-- Botão para entrar no servidor do JobId digitado
+ParceirosTab:Button({
+    Title = "Entrar no Servidor",
+    Callback = function()
+        if jobId and jobId ~= "" then
+            game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, jobId, game.Players.LocalPlayer)
+            
+            WindUI:Notify({
+                Title = "Entrando...",
+                Content = "Você está sendo teleportado!",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Digite um JobId válido!",
+                Duration = 3
+            })
+        end
+    end
+})
+
+-- Botão para copiar o JobId do servidor atual
+ParceirosTab:Button({
+    Title = "Copiar Meu JobId",
+    Callback = function()
+        local myJobId = game.JobId
+        setclipboard(myJobId) -- Copia o JobId para a área de transferência
+        
+        WindUI:Notify({
+            Title = "Copiado!",
+            Content = "Seu JobId foi copiado!",
+            Duration = 2
+        })
+    end
+})
+
+--Tag Tab
+
+local textChatService = game:GetService("TextChatService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local SelectedTag = "[⚒️]"  -- Valor inicial
+
+-- Função para aplicar a tag no texto do chat
+local function ApplyTagToMessage(message)
+    -- Cria a estrutura para o texto do chat
+    local properties = Instance.new("TextChatMessageProperties")
+    
+    -- Adiciona a tag antes do nome do jogador
+    properties.PrefixText = "<font color='#ff8400'>" .. SelectedTag .. "</font> " .. message.PrefixText
+    
+    return properties
+end
+
+-- Intercepta a mensagem recebida e aplica a tag para o LocalPlayer
+textChatService.OnIncomingMessage = function(message: TextChatMessage)
+    local properties = Instance.new("TextChatMessageProperties")
+
+    if message.TextSource then
+        local player = game:GetService("Players"):GetPlayerByUserId(message.TextSource.UserId)
+        
+        -- Verifica se a mensagem é do LocalPlayer
+        if player == LocalPlayer then
+            properties = ApplyTagToMessage(message)
+        else
+            properties.PrefixText = message.PrefixText
+        end
+    end
+
+    return properties
+end
+
+-- Criar o DropDown na TagTab
+local Dropdown = TagTab:Dropdown({
+    Title = "Escolha uma tag (chat)",
+    Desc = "Selecione a tag que deseja usar no chat",
+    Multi = false,
+    Value = SelectedTag,  -- Valor inicial
+    AllowNone = true,
+    Values = {
+        "[MOD]",
+        "[BLESSED]",
+        "[⚒️]",
+    },
+    Callback = function(selectedTag)
+        -- Atualiza a tag selecionada
+        SelectedTag = selectedTag
+        
+        -- Notificação de seleção de tag
+        WindUI:Notify({
+            Title = "Tag Selecionada",
+            Content = "Selecionado: " .. selectedTag,
+            Duration = 2
+        })
+    end
+})
+
+--Item Tab
+
+-- Função para pegar um item específico
+local function getItem(itemName, assetId)
+    local player = game:GetService("Players").LocalPlayer
+    local backpack = player:FindFirstChild("Backpack")
+
+    if backpack then
+        -- Obtém o modelo do item a partir do Asset ID
+        local success, item = pcall(function()
+            return game:GetObjects("rbxassetid://" .. assetId)[1]
+        end)
+
+        if success and item then
+            item.Parent = backpack  -- Adiciona ao inventário do jogador
+            item.Name = itemName
+
+            WindUI:Notify({
+                Title = "Item Obtido",
+                Content = "Você pegou " .. itemName .. "!",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "Erro",
+                Content = "Este modelo pode estar indisponível: " .. itemName,
+                Duration = 3
+            })
+        end
+    else
+        WindUI:Notify({
+            Title = "Erro",
+            Content = "Não foi possível pegar " .. itemName .. ".",
+            Duration = 3
+        })
+    end
+end
+
+-- Criar botões para os itens que carregaram corretamente
+ItemTab:Button({
+    Title = "Pegar Pistol Gun",
+    Callback = function()
+        getItem("Pistol Gun", "12888018694")
+    end
+})
+
+ItemTab:Button({
+    Title = "Pegar Shotgun 2",
+    Callback = function()
+        getItem("Shotgun 2", "178785159")
+    end
+})
+
+ItemTab:Button({
+    Title = "Pegar Uzi",
+    Callback = function()
+        getItem("Uzi", "128105460088314")
+    end
+})
+
+ItemTab:Button({
+    Title = "Pegar M4A1",
+    Callback = function()
+        getItem("M4A1", "10635966401")
+    end
+})
+
+ItemTab:Button({
+    Title = "Pegar Celular",
+    Callback = function()
+        getItem("Celular", "2143355240")
+    end
+})
+
+--Premium Tab
+
+local respawnAtDeathPosition = false
+
+local commandsList = {
+    "/copy [jogador] - Copia a skin do jogador.",
+    "/tp [jogador] - Teleporta até o jogador.",
+    "/ws [valor] - Define velocidade.",
+    "/rews - Velocidade padrão (16).",
+    "/jp [valor] - Define pulo.",
+    "/rejp - Pulo padrão (10).",
+    "/re - Reseta skin.",
+    "/reset - Reinicia personagem no local da morte.",
+    "/cmds - Lista todos comandos."
+}
+
+local function FindPlayer(playerName)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #playerName) == playerName:lower() or
+           player.DisplayName:lower():sub(1, #playerName) == playerName:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+local function CopySkin(playerName)
+    local targetPlayer = FindPlayer(playerName)
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") then
+        local args = { targetPlayer.Character.Humanoid.HumanoidDescription, true }
+        game:GetService("ReplicatedStorage").Events.TryBuy.Try:FireServer(unpack(args))
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Skin copiada de: " .. targetPlayer.Name,
+            Duration = 2
+        })
+    else
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Jogador não encontrado ou sem personagem.",
+            Duration = 2
+        })
+    end
+end
+
+local function TeleportToPlayer(playerName)
+    local targetPlayer = FindPlayer(playerName)
+    local myCharacter = game.Players.LocalPlayer.Character
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
+        myCharacter.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Teletransportado para: " .. targetPlayer.Name,
+            Duration = 2
+        })
+    else
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Jogador ou personagem não encontrado.",
+            Duration = 2
+        })
+    end
+end
+
+local function SetSpeed(value)
+    local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = tonumber(value) or 16
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Velocidade definida para: " .. humanoid.WalkSpeed,
+            Duration = 2
+        })
+    end
+end
+
+local function SetJumpHeight(value)
+    local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.JumpHeight = tonumber(value) or 10
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Altura do pulo definida para: " .. humanoid.JumpHeight,
+            Duration = 2
+        })
+    end
+end
+
+local function ResetSkin()
+    game:GetService("ReplicatedStorage").Events.Refresh:FireServer()
+    WindUI:Notify({
+        Title = "Blessed Hub",
+        Content = "Skin reiniciada.",
+        Duration = 2
+    })
+end
+
+local function ResetCharacter()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if character and character:FindFirstChild("Humanoid") and character:FindFirstChild("HumanoidRootPart") then
+        local deathPosition = character.HumanoidRootPart.Position
+        respawnAtDeathPosition = true
+
+        player.CharacterAdded:Once(function(newCharacter)
+            if respawnAtDeathPosition and newCharacter:FindFirstChild("HumanoidRootPart") then
+                task.wait(0.1)
+                newCharacter.HumanoidRootPart.CFrame = CFrame.new(deathPosition)
+                respawnAtDeathPosition = false
+            end
+        end)
+
+        character.Humanoid.Health = 0
+    else
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Não foi possível reiniciar o personagem.",
+            Duration = 2
+        })
+    end
+end
+
+-- Comandos via chat
+game.Players.LocalPlayer.Chatted:Connect(function(message)
+    local args = string.split(message:lower(), " ")
+    local command = args[1]
+    local param = table.concat(args, " ", 2)
+
+    if command == "/copy" then
+        CopySkin(param)
+    elseif command == "/tp" then
+        TeleportToPlayer(param)
+    elseif command == "/ws" then
+        SetSpeed(param)
+    elseif command == "/rews" then
+        SetSpeed(16)
+    elseif command == "/jp" then
+        SetJumpHeight(param)
+    elseif command == "/rejp" then
+        SetJumpHeight(10)
+    elseif command == "/re" then
+        ResetSkin()
+    elseif command == "/reset" then
+        ResetCharacter()
+    elseif command == "/cmds" then
+        WindUI:Notify({
+            Title = "Comandos Disponíveis",
+            Content = table.concat(commandsList, "\n"),
+            Duration = 15
+        })
+    end
+end)
+
+-- Botões na aba Premium
+PremiumTab:Button({
+    Title = "Ativar Comandos ADM",
+    Description = "Digite os comandos no chat, ex: /copy nome",
+    Callback = function()
+        WindUI:Notify({
+            Title = "Blessed Hub",
+            Content = "Comandos de ADM ativados! Digite /cmds no chat para ver.",
+            Duration = 2
+        })
+    end
+})
+
+PremiumTab:Button({
+    Title = "Ver Comandos Disponíveis",
+    Description = "Lista todos os comandos que você pode usar no chat.",
+    Callback = function()
+        WindUI:Notify({
+            Title = "Comandos Disponíveis",
+            Content = table.concat(commandsList, "\n"),
+            Duration = 15
+        })
+    end
+})
