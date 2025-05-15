@@ -29,7 +29,7 @@ window.features = {
     questionSpoof: true,
     videoSpoof: true,
     showAnswers: false,
-    autoAnswer: true,
+    autoAnswer: false,
     customBanner: false,
     nextRecomendation: false,
     repeatQuestion: false,
