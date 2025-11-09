@@ -444,11 +444,10 @@ Window:AddMinimizeButton({
     Button = { 
         Image = "rbxassetid://15298567397", -- seu ícone
         BackgroundTransparency = 1, -- fundo 100% transparente
-        Size = UDim2.new(0, 80, 0, 80) -- ícone super grande
+        Size = UDim2.new(0, 60, 0, 60) -- ícone super grande
     },
-    Corner = { CornerRadius = UDim.new(0, 0) }, -- se quiser quadrado, ou ajuste
+    Corner = { CornerRadius = UDim.new(35, 1) },
 })
-
 
 local infoTab = Window:MakeTab({"informações", "info"})
 
@@ -465,6 +464,7 @@ infoTab:AddParagraph({ "Esse não é o REDZ HUB oficial, é apenas uma versão r
 infoTab:AddSection({ "Créditos dos desenvolvedores" })
 infoTab:AddParagraph({ "Tiktok do criador: @fk_fakezin" })
 infoTab:AddParagraph({ "Canal do YouTube do criador: @Ghzinn_007 e @BlessedTeam_BT" })
+infoTab:AddParagraph({ "Meu discord: @xitad077" })
 infoTab:AddParagraph({ "Meu Roblox: BlessedTeam_BT e Gr3g0rilsir" })
 infoTab:AddParagraph({ "Colaboração:", "Anna & Blessed Team" })
 infoTab:AddParagraph({ "Você está usando:", "REDZ HUB" })
@@ -4626,7 +4626,7 @@ scriptsTab:AddParagraph({"Informação:", "Clique em algum item"})
 scriptsTab:AddParagraph({"Informação:", "depois de escolher clique em escrever"})
 scriptsTab:AddParagraph({"Informação:", "vc vai começa a escrever"})
 
-local flingsTab = Window:MakeTab({"Flings ", "rbxassetid://6458974334"})
+local flingsTab = Window:MakeTab({"Troll ", "skull"})
 
 local Section = flingsTab:AddSection({"Se quiser trocar a skybox, apenas mude sua camisa"})
 
