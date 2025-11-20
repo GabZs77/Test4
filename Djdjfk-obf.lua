@@ -432,7 +432,7 @@ end
 
 StartLoading()
 
-local redzlib = loadstring(game:HttpGet("https://pastefy.app/28t8rGLV/raw"))()
+local redzlib = loadstring(game:HttpGet("https://pastefy.app/hG3LUtAT/raw"))()
 
 local Window = redzlib:MakeWindow({
   Title = " REDz Hub - Recreated",
