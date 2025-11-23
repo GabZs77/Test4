@@ -1,9 +1,3 @@
---[[
-    Admin System by REDz (Versão Sem Painel)
-    Funciona através de comandos no chat.
-    Mantém as tags visuais e todos os comandos, incluindo ;jumpscare.
-]]
-
 -- Serviços
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
