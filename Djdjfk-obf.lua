@@ -388,31 +388,32 @@ end)
 
 --// Fim do script
 
+-- Script Principal
 local redzlib = loadstring(game:HttpGet("https://pastefy.app/hG3LUtAT/raw"))()
 
 local Window = redzlib:MakeWindow({
-  Title = " REDz Hub - Recreated",
-  SubTitle = "by G H O S T",
-  SaveFolder = "BlessedHub_Brookhaven"
-})
+      Title = " REDz Hub - Recreated",
+      SubTitle = "by G H O S T",
+      SaveFolder = "BlessedHub_Brookhaven"
+    })
 
-Window:AddMinimizeButton({
-    Button = { 
-        Image = "rbxassetid://15298567397", -- seu ícone
-        BackgroundTransparency = 1, -- fundo 100% transparente
-        Size = UDim2.new(0, 60, 0, 60) -- ícone super grande
-    },
-    Corner = { CornerRadius = UDim.new(35, 1) },
-})
+    Window:AddMinimizeButton({
+        Button = { 
+            Image = "rbxassetid://15298567397",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 60, 0, 60)
+        },
+        Corner = { CornerRadius = UDim.new(35, 1) },
+    })
 
-local infoTab = Window:MakeTab({"informações", "info"})
+    local infoTab = Window:MakeTab({"informações", "info"})
 
-infoTab:AddDiscordInvite({
-    Name = "Blessed Community",
-    Description = "Entre No Discord",
-    Logo = "rbxassetid://15298567397",
-    Invite = "https://discord.gg/eP55xHGy",
-})
+    infoTab:AddDiscordInvite({
+        Name = "Blessed Community",
+        Description = "Entre No Discord",
+        Logo = "rbxassetid://15298567397",
+        Invite = "https://discord.gg/eP55xHGy",
+    })
 
 infoTab:AddSection({ "Informações do Script" })
 infoTab:AddParagraph({ "Esse não é o REDZ HUB oficial, é apenas uma versão recriada" })
