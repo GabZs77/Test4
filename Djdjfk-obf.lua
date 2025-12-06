@@ -428,6 +428,31 @@ infoTab:AddParagraph({ "Você está usando:", "REDZ HUB" })
 infoTab:AddSection({ "Em caso de dúvidas sobre o REDz" })
 infoTab:AddParagraph({ "Me chama nessas redes:", "Tiktok ou Discord" })
 
+infoTab:AddSection({ "STAFF do REDz Hub" })
+local staffParagraph = infoTab:AddParagraph({
+"STAFF no servidor:",
+"Carregando..."
+})
+
+local function AtualizarStaffs()
+local lista = {}
+
+for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+if Donos[player.Name] then
+table.insert(lista, "[Dono] " .. player.Name)
+elseif Autorizados[player.Name] then
+table.insert(lista, "[Admin] " .. player.Name)
+end
+end
+
+staffParagraph:SetDesc(#lista > 0 and table.concat(lista, "\n") or "Nenhum staff no servidor")
+end
+
+game:GetService("Players").PlayerAdded:Connect(AtualizarStaffs)
+game:GetService("Players").PlayerRemoving:Connect(AtualizarStaffs)
+
+AtualizarStaffs()
+
 infoTab:AddSection({ "Informações Client" })
 
 --=== UTIL (cria "botões" não clicáveis e função segura de update) ===--
@@ -579,15 +604,698 @@ infoTab:AddButton({
 local NovidadeTab = Window:MakeTab({"Novidades", "start"})
 
 NovidadeTab:AddSection({ "Adicionado" })
-
-NovidadeTab:AddParagraph({ "Adicionado:", "[+] Interface Nova do Script." })
-NovidadeTab:AddParagraph({ "Adicionado:", "[+] AntiTool Player" })
+NovidadeTab:AddParagraph({ "05/12/2025 - [+] Adicionado: Aba para Skybox" })
+NovidadeTab:AddParagraph({ "05/12/2025 - [+] Adicionado: Nuke v2" })
+NovidadeTab:AddParagraph({ "05/12/2025 - [+] Adicionado: Nuke Flashlight" })
 
 NovidadeTab:AddSection({ "Arrumado" })
-NovidadeTab:AddParagraph({ "Sera Arrumado:", "Alguns Flings serão corrigidos" })
+NovidadeTab:AddParagraph({ "05/12/2025 - [*] Será Arrumado:", "Algumas funções do Troll v2" })
 
 NovidadeTab:AddSection({ "Removido" })
-NovidadeTab:AddParagraph({ "Sera Removido:", "Funções Inuteis/Sem Utilidades" })
+
+NovidadeTab:AddParagraph({ "05/12/2025 - Removido:", "[-] Expansões de Domínio/Goner" })
+NovidadeTab:AddParagraph({ "05/12/2025 - Removido:", "[-] Navio Tornado" })
+NovidadeTab:AddParagraph({ "05/12/2025 - Removido:", "[-] Alguns texto com item" })
+NovidadeTab:AddParagraph({ "05/12/2025 - Removido:", "[-] Algumas funções de Troll v2" })
+NovidadeTab:AddParagraph({ "05/12/2025 - Removido:", "[-] Sound All" })
+
+local TabNuke = Window:MakeTab({"Skybox", "cloud"})
+
+local Section = TabNuke:AddSection({"Se quiser trocar a skybox, apenas mude sua camisa"})
+
+-- Variáveis para controlar os estados
+local SkyboxActive = false
+local CurrentTrack = nil
+local RigidTrack = nil
+
+TabNuke:AddButton({
+   Name = "Skybox FE",
+   Callback = function()
+        if SkyboxActive then
+            -- Desativa skybox e animações
+            if CurrentTrack then
+                CurrentTrack:Stop(0.1)
+                CurrentTrack = nil
+            end
+            if RigidTrack then
+                RigidTrack:Stop(0.1)
+                RigidTrack = nil
+            end
+            
+            -- Primeiro reseta a aparência
+            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
+            
+            -- Aguarda um pouco e então mata o personagem
+            task.wait(0.3)
+            
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+            local character = player.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Health = 0
+                end
+            end
+            
+            SkyboxActive = false
+            print("Skybox e andar duro removidos!")
+        else
+            -- Ativa a skybox
+            local args = {
+                {
+                    100839513065432
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
+            
+            function missing(t, f, fallback)
+                if type(f) == t then return f end
+                return fallback 
+            end
+
+            cloneref = missing("function", cloneref, function(...) return ... end)
+
+            local Services = setmetatable({}, {
+                __index = function(_, name)
+                    return cloneref(game:GetService(name))
+                end
+            })
+
+            local Players = Services.Players
+            local player = Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+
+            -- Configurações da skybox
+            local Settings = {}
+            Settings["Fade In"]     = 0.1
+            Settings["Fade Out"]    = 0.1
+            Settings["Weight"]      = 1
+            Settings["Speed"]       = 1
+            Settings["Time Position"] = 0
+
+            local function LoadTrack(id)
+                local animId
+                local ok, result = pcall(function()
+                    return game:GetObjects("rbxassetid://" .. tostring(id))
+                end)
+
+                if ok and result and #result > 0 then
+                    local anim = result[1]
+                    if anim:IsA("Animation") then
+                        animId = anim.AnimationId
+                    else
+                        animId = "rbxassetid://" .. tostring(id)
+                    end
+                else
+                    animId = "rbxassetid://" .. tostring(id)
+                end
+
+                local newAnim = Instance.new("Animation")
+                newAnim.AnimationId = animId
+                local newTrack = humanoid:LoadAnimation(newAnim)
+                newTrack.Priority = Enum.AnimationPriority.Action4
+
+                local weight = Settings["Weight"]
+                if weight == 0 then weight = 0.001 end
+
+                newTrack:Play(Settings["Fade In"], weight, Settings["Speed"])
+                
+                CurrentTrack = newTrack
+                CurrentTrack.TimePosition = math.clamp(Settings["Time Position"], 0, 1) * CurrentTrack.Length
+
+                return newTrack
+            end
+
+            -- Executa a animação da skybox
+            local EmoteId = 101852027997337
+            LoadTrack(EmoteId)
+            
+            -- Aguarda um pouco antes de ativar o planking
+            task.wait(0.5)
+            
+            -- Ativa a animação de planking (andar duro/deitado)
+            local PlankingId = "rbxassetid://3695333486"
+            local plankAnim = Instance.new("Animation")
+            plankAnim.AnimationId = PlankingId
+            RigidTrack = humanoid:LoadAnimation(plankAnim)
+            RigidTrack.Priority = Enum.AnimationPriority.Movement
+            RigidTrack:Play(0.1, 1, 0)
+            
+            SkyboxActive = true
+            print("Skybox e andar duro ativados!")
+        end
+    end
+})
+
+-- Botão de reset completo
+TabNuke:AddButton({
+    Name = "Para Skybox",
+    Callback = function()
+        if CurrentTrack then
+            CurrentTrack:Stop(0.1)
+            CurrentTrack = nil
+        end
+        if RigidTrack then
+            RigidTrack:Stop(0.1)
+            RigidTrack = nil
+        end
+        SkyboxActive = false
+        
+        -- Primeiro reseta a aparência
+        game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
+        
+        -- Aguarda um pouco para o remote processar
+        task.wait(0.3)
+        
+        -- Depois mata o personagem
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+        
+        print("Aparência resetada e personagem morto!")
+    end
+})
+
+-- Detecção automática de reset/morte do personagem
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+player.CharacterAdded:Connect(function()
+    -- Quando o personagem respawna, desativa tudo
+    SkyboxActive = false
+    CurrentTrack = nil
+    RigidTrack = nil
+    print("Personagem resetado - Tudo desativado")
+end)
+
+TabNuke:AddSection({ "Nuke Server" })
+
+local SkyboxActive = false
+local CurrentTrack = nil
+local EmoteTrack = nil
+local SpinConnection = nil
+
+TabNuke:AddButton({
+   Name = "Nuke v1",
+   Callback = function()
+        if SkyboxActive then
+            if CurrentTrack then
+                CurrentTrack:Stop(0.1)
+                CurrentTrack = nil
+            end
+            
+            if EmoteTrack then
+                EmoteTrack:Stop(0.1)
+                EmoteTrack = nil
+            end
+            
+            if SpinConnection then
+                SpinConnection:Disconnect()
+                SpinConnection = nil
+            end
+            
+            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
+            task.wait(0.3)
+            
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+            local character = player.Character
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Health = 0
+                end
+            end
+            
+            SkyboxActive = false
+        else
+            local Players = game:GetService("Players")
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local player = Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            local animator = humanoid:WaitForChild("Animator")
+            local rootPart = character:WaitForChild("HumanoidRootPart")
+
+            local animationId = 121255258198847
+            local assetUrl = "rbxassetid://" .. animationId
+            
+            pcall(function()
+                local anim = Instance.new("Animation")
+                anim.AnimationId = assetUrl
+                EmoteTrack = animator:LoadAnimation(anim)
+                EmoteTrack.Priority = Enum.AnimationPriority.Action
+                EmoteTrack.Looped = true
+                EmoteTrack:Play()
+            end)
+            
+            task.wait(0.1)
+            pcall(function()
+                local remote = ReplicatedStorage.Remotes:FindFirstChild("Emotes:PlaySyncableEmote")
+                if remote then
+                    local args = {
+                        [1] = {
+                            ["Id"] = animationId,
+                            ["Repeat"] = true,
+                            ["Name"] = "Hurt",
+                            ["Filter"] = "Pose"
+                        }
+                    }
+                    remote:FireServer(unpack(args))
+                end
+            end)
+            
+            pcall(function()
+                local args = {
+                    [1] = "Hurt"
+                }
+                ReplicatedStorage.Remotes.t_animationPlayed:FireServer(unpack(args))
+            end)
+            
+            task.wait(0.5)
+            
+            local args = {
+                {
+                    100839513065432
+                }
+            }
+            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
+            
+            function missing(t, f, fallback)
+                if type(f) == t then return f end
+                return fallback 
+            end
+
+            cloneref = missing("function", cloneref, function(...) return ... end)
+
+            local Services = setmetatable({}, {
+                __index = function(_, name)
+                    return cloneref(game:GetService(name))
+                end
+            })
+
+            local Settings = {}
+            Settings["Fade In"]     = 0.1
+            Settings["Fade Out"]    = 0.1
+            Settings["Weight"]      = 1
+            Settings["Speed"]       = 1
+            Settings["Time Position"] = 0
+
+            local function LoadTrack(id)
+                local animId
+                local ok, result = pcall(function()
+                    return game:GetObjects("rbxassetid://" .. tostring(id))
+                end)
+
+                if ok and result and #result > 0 then
+                    local anim = result[1]
+                    if anim:IsA("Animation") then
+                        animId = anim.AnimationId
+                    else
+                        animId = "rbxassetid://" .. tostring(id)
+                    end
+                else
+                    animId = "rbxassetid://" .. tostring(id)
+                end
+
+                local newAnim = Instance.new("Animation")
+                newAnim.AnimationId = animId
+                local newTrack = animator:LoadAnimation(newAnim)
+                newTrack.Priority = Enum.AnimationPriority.Core
+
+                local weight = Settings["Weight"]
+                if weight == 0 then weight = 0.001 end
+
+                newTrack:Play(Settings["Fade In"], weight, Settings["Speed"])
+                
+                CurrentTrack = newTrack
+                CurrentTrack.TimePosition = math.clamp(Settings["Time Position"], 0, 1) * CurrentTrack.Length
+
+                return newTrack
+            end
+
+            local EmoteId = 101852027997337
+            LoadTrack(EmoteId)
+            
+            local RunService = game:GetService("RunService")
+            local spinSpeed = 5
+            
+            SpinConnection = RunService.Heartbeat:Connect(function(deltaTime)
+                if rootPart and rootPart.Parent then
+                    local rotation = CFrame.Angles(0, math.rad(spinSpeed * deltaTime * 60), 0)
+                    rootPart.CFrame = rootPart.CFrame * rotation
+                end
+            end)
+            
+            SkyboxActive = true
+        end
+    end
+})
+
+TabNuke:AddButton({
+   Name = "Stop Nuke v1",
+   Callback = function()
+        if CurrentTrack then
+            CurrentTrack:Stop(0.1)
+            CurrentTrack = nil
+        end
+        if EmoteTrack then
+            EmoteTrack:Stop(0.1)
+            EmoteTrack = nil
+        end
+        if SpinConnection then
+            SpinConnection:Disconnect()
+            SpinConnection = nil
+        end
+        SkyboxActive = false
+        
+        game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
+        
+        task.wait(0.3)
+        
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+    end
+})
+
+TabNuke:AddDropdown({
+    Name = "Cores",
+    Options = {
+        "Preto",
+        "Branco",
+        "Vermelho",
+        "Vermelho Escuro",
+        "Rosa",
+        "Rosa Claro",
+        "Azul Escuro",
+        "Verde Claro",
+        "Verde Escuro",
+        "Amarelo",
+        "Laranja",
+        "Ciano Escuro",
+        "Ciano",
+        "Cinza"
+    },
+    Callback = function(Selected)
+        local cor = nil
+
+        if Selected == "Preto" then cor = "Really black"
+        elseif Selected == "Branco" then cor = "Institutional white"
+        elseif Selected == "Vermelho" then cor = "Really red"
+        elseif Selected == "Vermelho Escuro" then cor = "Maroon"
+        elseif Selected == "Rosa" then cor = "Hot pink"
+        elseif Selected == "Rosa Claro" then cor = "Carnation pink"
+        elseif Selected == "Azul Escuro" then cor = "Dark blue"
+        elseif Selected == "Verde Claro" then cor = "Lime green"
+        elseif Selected == "Verde Escuro" then cor = "Earth green"
+        elseif Selected == "Amarelo" then cor = "New Yeller"
+        elseif Selected == "Laranja" then cor = "Deep orange"
+        elseif Selected == "Ciano Escuro" then cor = "Cyan"
+        elseif Selected == "Ciano" then cor = "Toothpaste"
+        elseif Selected == "Cinza" then cor = "Smoky grey"
+        end
+
+        if cor then
+            local args = {cor}
+            game:GetService("ReplicatedStorage")
+            :WaitForChild("Remotes")
+            :WaitForChild("ChangeBodyColor")
+            :FireServer(unpack(args))
+        end
+    end
+})
+
+local loopAtivo = false
+
+TabNuke:AddToggle({
+    Name = "Cores em Loop",
+    Default = false,
+    Callback = function(Value)
+        loopAtivo = Value
+
+        task.spawn(function()
+            while loopAtivo do
+                local lista = {
+                    "Really black",
+                    "Institutional white",
+                    "Really red",
+                    "Maroon",
+                    "Hot pink",
+                    "Carnation pink",
+                    "Dark blue",
+                    "Lime green",
+                    "Earth green",
+                    "New Yeller",
+                    "Deep orange",
+                    "Cyan",
+                    "Toothpaste",
+                    "Smoky grey"
+                }
+
+                for _, cor in ipairs(lista) do
+                    if not loopAtivo then break end
+
+                    local args = {cor}
+                    game:GetService("ReplicatedStorage")
+                    :WaitForChild("Remotes")
+                    :WaitForChild("ChangeBodyColor")
+                    :FireServer(unpack(args))
+
+                    task.wait()
+                end
+            end
+        end)
+    end
+})
+
+local skyboxEnabled = false
+local skyboxTrack = nil
+local savedBodyParts = {}
+
+local function stopAllAnimations()
+    if skyboxTrack then
+        pcall(function()
+            skyboxTrack:Stop()
+            skyboxTrack:Destroy()
+        end)
+        skyboxTrack = nil
+    end
+    
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            local animator = humanoid:FindFirstChild("Animator")
+            if animator then
+                for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+                    pcall(function()
+                        track:Stop()
+                    end)
+                end
+            end
+        end
+    end
+end
+
+TabNuke:AddToggle({
+    Name = "Nuke Skybox v2",
+    Description = "Deixa a tela dos jogadores com a cor selecionada",
+    Default = false,
+    Callback = function(value)
+        skyboxEnabled = value
+        
+        if value then
+            local player = game.Players.LocalPlayer
+            local character = player.Character
+            
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    local description = humanoid:GetAppliedDescription()
+                    
+                    savedBodyParts = {
+                        Torso = description.Torso,
+                        RightArm = description.RightArm,
+                        LeftArm = description.LeftArm,
+                        RightLeg = description.RightLeg,
+                        LeftLeg = description.LeftLeg,
+                        Head = description.Head
+                    }
+                    
+                    task.wait(0.2)
+                    
+                    local skyboxBody = {
+                        [1] = description.Torso,
+                        [2] = description.RightArm,
+                        [3] = description.LeftArm,
+                        [4] = description.RightLeg,
+                        [5] = description.LeftLeg,
+                        [6] = 115959405843119
+                    }
+                    
+                    local args = {
+                        [1] = skyboxBody
+                    }
+                    
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
+                    end)
+                    
+                    task.wait(0.3)
+                    
+                    local newAnim = Instance.new("Animation")
+                    newAnim.AnimationId = "rbxassetid://70883871260184"
+                    
+                    skyboxTrack = humanoid:LoadAnimation(newAnim)
+                    skyboxTrack.Priority = Enum.AnimationPriority.Action4
+                    skyboxTrack:Play(0.1, 1, 1)
+                    
+                    task.wait(0.1)
+                    skyboxTrack:AdjustSpeed(0.0001)
+                end
+            end
+        else
+            stopAllAnimations()
+            
+            task.wait(0.2)
+            
+            if next(savedBodyParts) then
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                
+                if character then
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        local restoreBody = {
+                            [1] = savedBodyParts.Torso,
+                            [2] = savedBodyParts.RightArm,
+                            [3] = savedBodyParts.LeftArm,
+                            [4] = savedBodyParts.RightLeg,
+                            [5] = savedBodyParts.LeftLeg,
+                            [6] = savedBodyParts.Head
+                        }
+                        
+                        local args = {
+                            [1] = restoreBody
+                        }
+                        
+                        pcall(function()
+                            game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
+                        end)
+                    end
+                end
+            end
+        end
+    end
+})
+
+TabNuke:AddToggle({
+    Name = "Nuke FlashBack",
+    Description = "Faz a tela dos jogadores ficar piscando a cor selecionada",
+    Default = false,
+    Callback = function(value)
+        skyboxEnabled = value
+        
+        if value then
+            local player = game.Players.LocalPlayer
+            local character = player.Character
+            
+            if character then
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    local description = humanoid:GetAppliedDescription()
+                    
+                    savedBodyParts = {
+                        Torso = description.Torso,
+                        RightArm = description.RightArm,
+                        LeftArm = description.LeftArm,
+                        RightLeg = description.RightLeg,
+                        LeftLeg = description.LeftLeg,
+                        Head = description.Head
+                    }
+                    
+                    task.wait(0.2)
+                    
+                    local yourBody = {
+                        [1] = description.Torso,
+                        [2] = description.RightArm,
+                        [3] = description.LeftArm,
+                        [4] = description.RightLeg,
+                        [5] = description.LeftLeg,
+                        [6] = 115959405843119
+                    }
+                    
+                    local args = {
+                        [1] = yourBody
+                    }
+                    
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
+                    end)
+                    
+                    task.wait(0.3)
+                    
+                    local newAnim = Instance.new("Animation")
+                    newAnim.AnimationId = "rbxassetid://70883871260184"
+                    
+                    skyboxTrack = humanoid:LoadAnimation(newAnim)
+                    skyboxTrack.Priority = Enum.AnimationPriority.Action4
+                    skyboxTrack:Play(0.1, 1, 1)
+                    
+                    task.wait(0.1)
+                    skyboxTrack:AdjustSpeed(5)
+                end
+            end
+        else
+            stopAllAnimations()
+            
+            task.wait(0.2)
+            
+            if next(savedBodyParts) then
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                
+                if character then
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        local restoreBody = {
+                            [1] = savedBodyParts.Torso,
+                            [2] = savedBodyParts.RightArm,
+                            [3] = savedBodyParts.LeftArm,
+                            [4] = savedBodyParts.RightLeg,
+                            [5] = savedBodyParts.LeftLeg,
+                            [6] = savedBodyParts.Head
+                        }
+                        
+                        local args = {
+                            [1] = restoreBody
+                        }
+                        
+                        pcall(function()
+                            game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
+                        end)
+                    end
+                end
+            end
+        end
+    end
+})
 
 local CarTab = Window:MakeTab({"Veiculo", "car"})
 
@@ -2986,830 +3694,7 @@ scriptsTab:AddSection({ "Emotes" })
 scriptsTab:AddButton({
     Name = "Emotes",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/ShadowsHubseila/Shad0ws-emotes/refs/heads/main/emotes%20Shadows"))()
-    end
-})
-
--- Variáveis globais para controlar os scripts
-cancelExpansion = false
-expansionSound = nil
-expansionModel = nil
-originalSky = nil
-
-scriptsTab:AddSection({ "Mapa" })
-scriptsTab:AddButton({
-    Name = "Expansão Domínio",
-    Description = "",
-    Callback = function()
--- Serviços
-local TextChatService = game:GetService("TextChatService")
-local Lighting = game:GetService("Lighting")
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Player = Players.LocalPlayer
-
--- Reset da variável de cancelamento
-cancelExpansion = false
-
--- Aviso no chat (com \r conforme seu pedido)
-if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then 
-    TextChatService.TextChannels.RBXGeneral:SendAsync(
-        "hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\rServer: Expansão de Domínio [REDZ HUB ATTACK]"
-    )
-else 
-    print("gojo chorou no banho F")
-end
-
--- Função para ativar Expansão de Domínio
-local function ativarDominio()
-    local char = Player.Character or Player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-
-    local dominio = Instance.new("Model", workspace)
-    dominio.Name = "InfiniteVoid"
-    expansionModel = dominio
-
-    local esfera = Instance.new("Part")
-    esfera.Shape = Enum.PartType.Ball
-    esfera.Size = Vector3.new(300, 300, 300)
-    esfera.Position = hrp.Position
-    esfera.Anchored = true
-    esfera.CanCollide = false
-    esfera.Material = Enum.Material.ForceField
-    esfera.Transparency = 0.3
-    esfera.Color = Color3.fromRGB(0, 0, 0)
-    esfera.Parent = dominio
-
-    local luz = Instance.new("PointLight", esfera)
-    luz.Color = Color3.fromRGB(0, 153, 255)
-    luz.Brightness = 10
-    luz.Range = 300
-
-    local ps = Instance.new("ParticleEmitter", esfera)
-    ps.Texture = "rbxassetid://243660364"
-    ps.Color = ColorSequence.new(Color3.fromRGB(0, 153, 255))
-    ps.LightEmission = 1
-    ps.Size = NumberSequence.new(3)
-    ps.Transparency = NumberSequence.new(0.2)
-    ps.Rate = 1000
-    ps.Lifetime = NumberRange.new(2)
-    ps.Speed = NumberRange.new(0)
-    ps.VelocitySpread = 180
-
-    local som = Instance.new("Sound", esfera)
-    som.SoundId = "rbxassetid://1843527678"
-    som.Volume = 2
-    som.Looped = true
-    som:Play()
-    expansionSound = som
-
-    originalSky = Lighting:FindFirstChildOfClass("Sky")
-    if originalSky then
-        originalSky.Parent = nil
-    end
-
-    local newSky = Instance.new("Sky", Lighting)
-    newSky.SkyboxBk = "rbxassetid://159454299"
-    newSky.SkyboxDn = "rbxassetid://159454296"
-    newSky.SkyboxFt = "rbxassetid://159454293"
-    newSky.SkyboxLf = "rbxassetid://159454286"
-    newSky.SkyboxRt = "rbxassetid://159454300"
-    newSky.SkyboxUp = "rbxassetid://159454288"
-end
-
--- Executa a expansão de domínio
-ativarDominio()
-
--- Áudio em loop infinito no jogador
-local selectedAudioID = 140031333626044
-
-task.spawn(function()
-    while not cancelExpansion do
-        local remote = ReplicatedStorage:FindFirstChild("RE") and ReplicatedStorage.RE:FindFirstChild("1Gu1nSound1s")
-        if remote then
-            remote:FireServer(workspace, selectedAudioID, 1)
-        end
-
-        local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            local sound = Instance.new("Sound")
-            sound.SoundId = "rbxassetid://" .. selectedAudioID
-            sound.Volume = 1
-            sound.Looped = false
-            sound.Parent = root
-            sound:Play()
-            sound.Ended:Connect(function() sound:Destroy() end)
-            task.wait(sound.TimeLength + 0.1)
-        else
-            warn("HumanoidRootPart não encontrado")
-            break
-        end
-    end
-end)
-
--- ========================
--- ATAQUE COM ARMA: Assault
--- ========================
-
-local RE = ReplicatedStorage:WaitForChild("RE")
-local ClearEvent = RE:FindFirstChild("1Clea1rTool1s")
-local ToolEvent = RE:FindFirstChild("1Too1l")
-local FireEvent = RE:FindFirstChild("1Gu1n")
-
--- Limpa ferramentas
-local function clearAllTools()
-    if ClearEvent then
-        ClearEvent:FireServer("ClearAllTools")
-    end
-end
-
--- Solicita Assault
-local function getAssault()
-    if ToolEvent then
-        ToolEvent:InvokeServer("PickingTools", "Assault")
-    end
-end
-
--- Verifica se recebeu Assault
-local function hasAssault()
-    return Player.Backpack:FindFirstChild("Assault") ~= nil
-end
-
--- Atira em parte
-local function fireAtPart(targetPart)
-    local gunScript = Player.Backpack:FindFirstChild("Assault")
-        and Player.Backpack.Assault:FindFirstChild("GunScript_Local")
-
-    if not gunScript or not targetPart then return end
-
-    local args = {
-        targetPart,
-        targetPart,
-        Vector3.new(1e14, 1e14, 1e14),
-        targetPart.Position,
-        gunScript:FindFirstChild("MuzzleEffect"),
-        gunScript:FindFirstChild("HitEffect"),
-        0,
-        0,
-        { false },
-        {
-            25,
-            Vector3.new(100, 100, 100),
-            BrickColor.new(29),
-            0.25,
-            Enum.Material.SmoothPlastic,
-            0.25
-        },
-        true,
-        false
-    }
-
-    FireEvent:FireServer(unpack(args))
-end
-
--- Atira em todos os jogadores
-local function fireAtAllPlayers(times)
-    for i = 1, times do
-        if cancelExpansion then break end
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= Player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                fireAtPart(player.Character.HumanoidRootPart)
-                task.wait(0.1)
-            end
-        end
-    end
-end
-
--- Loop automático de ataque
-task.spawn(function()
-    while not cancelExpansion do
-        clearAllTools()
-        getAssault()
-
-        repeat
-            task.wait(0.2)
-        until hasAssault() or cancelExpansion
-
-        if not cancelExpansion then
-            fireAtAllPlayers(3)
-            task.wait(1)
-        end
-    end
-end)
-end
-})
-
-scriptsTab:AddButton({
-    Name = "Parar Expansão de Domínio",
-    Description = "",
-    Callback = function()
-        -- Sinaliza para parar loops
-        cancelExpansion = true
-
-        -- Para o som em loop
-        if expansionSound then
-            expansionSound:Stop()
-            expansionSound:Destroy()
-            expansionSound = nil
-        end
-
-        -- Remove o modelo "InfiniteVoid" criado
-        if expansionModel and expansionModel.Parent then
-            expansionModel:Destroy()
-            expansionModel = nil
-        end
-
-        -- Restaura o Sky original
-        local Lighting = game:GetService("Lighting")
-        local currentSky = Lighting:FindFirstChildOfClass("Sky")
-        if currentSky then currentSky:Destroy() end
-
-        if originalSky then
-            originalSky.Parent = Lighting
-            originalSky = nil
-        end
-
-        -- Mensagem no chat confirmando cancelamento
-        local TextChatService = game:GetService("TextChatService")
-        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            TextChatService.TextChannels.RBXGeneral:SendAsync("[Expansão de Domínio cancelada]")
-        else
-            print("Parado com sucesso!")
-        end
-    end
-})
-
--- Variáveis globais para controlar os scripts
-cancelExpansion = false
-expansionSound = nil
-expansionModel = nil
-originalSky = nil
-originalLighting = {}
-createdSky = nil
-
-scriptsTab:AddSection({ "Goner Expansion - by Shadows" })
-scriptsTab:AddButton({
-    Name = "Goner Expansion",
-    Description = "",
-    Callback = function()
--- Serviços
-local TextChatService = game:GetService("TextChatService")
-local Lighting = game:GetService("Lighting")
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Player = Players.LocalPlayer
-
--- Reset da variável de cancelamento
-cancelExpansion = false
-
--- Salva configurações originais do Lighting
-originalLighting = {
-    Brightness = Lighting.Brightness,
-    ClockTime = Lighting.ClockTime,
-    GeographicLatitude = Lighting.GeographicLatitude,
-    OutdoorAmbient = Lighting.OutdoorAmbient,
-    Ambient = Lighting.Ambient,
-    FogColor = Lighting.FogColor,
-    FogEnd = Lighting.FogEnd
-}
-
--- Aviso no chat
-if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then 
-    TextChatService.TextChannels.RBXGeneral:SendAsync(
-        "hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\rServer: Goner Expansion [REDZ ATTACK]"
-    )
-else 
-    print("gojo chorou no banho F")
-end
-
--- Função para ativar Expansão de Domínio (VERSÃO VERMELHA)
-local function ativarDominio()
-    local char = Player.Character or Player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-
-    local dominio = Instance.new("Model", workspace)
-    dominio.Name = "InfiniteVoid"
-    expansionModel = dominio
-
-    -- Esfera VERMELHA
-    local esfera = Instance.new("Part")
-    esfera.Shape = Enum.PartType.Ball
-    esfera.Size = Vector3.new(300, 300, 300)
-    esfera.Position = hrp.Position
-    esfera.Anchored = true
-    esfera.CanCollide = false
-    esfera.Material = Enum.Material.ForceField
-    esfera.Transparency = 0.3
-    esfera.Color = Color3.fromRGB(150, 0, 0)  -- Vermelho escuro
-    esfera.Parent = dominio
-
-    -- Luz VERMELHA
-    local luz = Instance.new("PointLight", esfera)
-    luz.Color = Color3.fromRGB(255, 0, 0)  -- Vermelho intenso
-    luz.Brightness = 10
-    luz.Range = 300
-
-    -- Partículas VERMELHAS
-    local ps = Instance.new("ParticleEmitter", esfera)
-    ps.Texture = "rbxassetid://243660364"
-    ps.Color = ColorSequence.new(Color3.fromRGB(255, 0, 0))  -- Vermelho
-    ps.LightEmission = 1
-    ps.Size = NumberSequence.new(3)
-    ps.Transparency = NumberSequence.new(0.2)
-    ps.Rate = 1000
-    ps.Lifetime = NumberRange.new(2)
-    ps.Speed = NumberRange.new(0)
-    ps.VelocitySpread = 180
-
-    -- SOM PRINCIPAL (ID 5813114232)
-    local som = Instance.new("Sound", esfera)
-    som.SoundId = "rbxassetid://5813114232"
-    som.Volume = 2
-    som.Looped = true
-    som:Play()
-    expansionSound = som
-
-    -- Salva Sky original
-    originalSky = Lighting:FindFirstChildOfClass("Sky")
-    if originalSky then
-        originalSky.Parent = nil
-    end
-
-    -- Remove Atmosphere existente
-    for _, obj in ipairs(Lighting:GetChildren()) do
-        if obj:IsA("Atmosphere") then
-            obj:Destroy()
-        end
-    end
-
-    -- SKYBOX VERMELHO COM IMAGEM 6300792626 (PROTEGIDO)
-    local newSky = Instance.new("Sky")
-    local skyTextureId = "rbxassetid://6300792626"
-    newSky.Name = "GonerSkybox"
-    newSky.SkyboxBk = skyTextureId
-    newSky.SkyboxDn = skyTextureId
-    newSky.SkyboxFt = skyTextureId
-    newSky.SkyboxLf = skyTextureId
-    newSky.SkyboxRt = skyTextureId
-    newSky.SkyboxUp = skyTextureId
-    newSky.Parent = Lighting
-    createdSky = newSky
-
-    -- Sistema de proteção do skybox
-    task.spawn(function()
-        while not cancelExpansion do
-            if not createdSky or createdSky.Parent ~= Lighting then
-                -- Recria o skybox se for removido
-                local recreatedSky = Instance.new("Sky")
-                recreatedSky.Name = "GonerSkybox"
-                recreatedSky.SkyboxBk = skyTextureId
-                recreatedSky.SkyboxDn = skyTextureId
-                recreatedSky.SkyboxFt = skyTextureId
-                recreatedSky.SkyboxLf = skyTextureId
-                recreatedSky.SkyboxRt = skyTextureId
-                recreatedSky.SkyboxUp = skyTextureId
-                recreatedSky.Parent = Lighting
-                createdSky = recreatedSky
-            end
-            task.wait(0.1)
-        end
-    end)
-
-    -- Efeitos de iluminação VERMELHA INTENSA
-    Lighting.Brightness = 2
-    Lighting.ClockTime = 14
-    Lighting.GeographicLatitude = 0
-    Lighting.OutdoorAmbient = Color3.fromRGB(200, 0, 0)  -- Vermelho
-    Lighting.Ambient = Color3.fromRGB(255, 0, 0)  -- Vermelho intenso
-    Lighting.FogColor = Color3.fromRGB(150, 0, 0)  -- Neblina vermelha
-    Lighting.FogEnd = 500  -- Neblina próxima
-
-    print(" Skybox Goner aplicado com imagem 6300792626")
-end
-
--- Executa a expansão de domínio
-ativarDominio()
-
--- ========================
--- SISTEMA DE ÁUDIO COMPLETO (ID 5813114232)
--- ========================
-local selectedAudioID = 5813114232
-
--- Áudio via RemoteEvent
-task.spawn(function()
-    while not cancelExpansion do
-        local remote = ReplicatedStorage:FindFirstChild("RE") and ReplicatedStorage.RE:FindFirstChild("1Gu1nSound1s")
-        if remote then
-            pcall(function()
-                remote:FireServer(workspace, selectedAudioID, 1)
-            end)
-        end
-        task.wait(1)
-    end
-end)
-
--- Áudio local no jogador
-task.spawn(function()
-    while not cancelExpansion do
-        local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            local sound = Instance.new("Sound")
-            sound.SoundId = "rbxassetid://" .. selectedAudioID
-            sound.Volume = 1
-            sound.Looped = false
-            sound.Parent = root
-            sound:Play()
-            sound.Ended:Connect(function() sound:Destroy() end)
-            task.wait(sound.TimeLength + 0.1)
-        else
-            task.wait(1)
-        end
-    end
-end)
-
--- Áudio adicional no workspace
-task.spawn(function()
-    while not cancelExpansion do
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://" .. selectedAudioID
-        sound.Volume = 1.5
-        sound.Looped = false
-        sound.Parent = workspace
-        sound:Play()
-        game:GetService("Debris"):AddItem(sound, sound.TimeLength + 1)
-        task.wait(sound.TimeLength + 0.5)
-    end
-end)
-
--- ========================
--- ATAQUE COM ARMA: Assault
--- ========================
-
-local RE = ReplicatedStorage:WaitForChild("RE")
-local ClearEvent = RE:FindFirstChild("1Clea1rTool1s")
-local ToolEvent = RE:FindFirstChild("1Too1l")
-local FireEvent = RE:FindFirstChild("1Gu1n")
-
--- Limpa ferramentas
-local function clearAllTools()
-    if ClearEvent then
-        pcall(function()
-            ClearEvent:FireServer("ClearAllTools")
-        end)
-    end
-end
-
--- Solicita Assault
-local function getAssault()
-    if ToolEvent then
-        pcall(function()
-            ToolEvent:InvokeServer("PickingTools", "Assault")
-        end)
-    end
-end
-
--- Verifica se recebeu Assault
-local function hasAssault()
-    return Player.Backpack:FindFirstChild("Assault") ~= nil
-end
-
--- Atira em parte
-local function fireAtPart(targetPart)
-    local gunScript = Player.Backpack:FindFirstChild("Assault")
-        and Player.Backpack.Assault:FindFirstChild("GunScript_Local")
-
-    if not gunScript or not targetPart then return end
-
-    local args = {
-        targetPart,
-        targetPart,
-        Vector3.new(1e14, 1e14, 1e14),
-        targetPart.Position,
-        gunScript:FindFirstChild("MuzzleEffect"),
-        gunScript:FindFirstChild("HitEffect"),
-        0,
-        0,
-        { false },
-        {
-            25,
-            Vector3.new(100, 100, 100),
-            BrickColor.new(29),
-            0.25,
-            Enum.Material.SmoothPlastic,
-            0.25
-        },
-        true,
-        false
-    }
-
-    pcall(function()
-        FireEvent:FireServer(unpack(args))
-    end)
-end
-
--- Atira em todos os jogadores
-local function fireAtAllPlayers(times)
-    for i = 1, times do
-        if cancelExpansion then break end
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= Player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                fireAtPart(player.Character.HumanoidRootPart)
-                task.wait(0.1)
-            end
-        end
-    end
-end
-
--- Loop automático de ataque
-task.spawn(function()
-    while not cancelExpansion do
-        clearAllTools()
-        getAssault()
-
-        repeat
-            task.wait(0.2)
-        until hasAssault() or cancelExpansion
-
-        if not cancelExpansion then
-            fireAtAllPlayers(3)
-            task.wait(1)
-        end
-    end
-end)
-end
-})
-
-scriptsTab:AddButton({
-    Name = "Para Ataque Goner",
-    Description = "",
-    Callback = function()
-        local Lighting = game:GetService("Lighting")
-        local TextChatService = game:GetService("TextChatService")
-        
-        -- Sinaliza para parar loops
-        cancelExpansion = true
-
-        task.wait(0.5)  -- Aguarda loops finalizarem
-
-        -- Para e remove TODOS os sons
-        if expansionSound then
-            expansionSound:Stop()
-            expansionSound:Destroy()
-            expansionSound = nil
-        end
-
-        -- Remove todos os sons do workspace
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Sound") and obj.SoundId == "rbxassetid://5813114232" then
-                obj:Stop()
-                obj:Destroy()
-            end
-        end
-
-        -- Remove sons do personagem
-        local Players = game:GetService("Players")
-        local Player = Players.LocalPlayer
-        if Player.Character then
-            for _, obj in ipairs(Player.Character:GetDescendants()) do
-                if obj:IsA("Sound") and obj.SoundId == "rbxassetid://5813114232" then
-                    obj:Stop()
-                    obj:Destroy()
-                end
-            end
-        end
-
-        -- Remove o modelo "InfiniteVoid" criado (ESFERA VERMELHA)
-        if expansionModel and expansionModel.Parent then
-            expansionModel:Destroy()
-            expansionModel = nil
-        end
-
-        -- Remove qualquer modelo InfiniteVoid restante
-        for _, obj in ipairs(workspace:GetChildren()) do
-            if obj:IsA("Model") and obj.Name == "InfiniteVoid" then
-                obj:Destroy()
-            end
-        end
-
-        -- Remove o skybox criado
-        if createdSky and createdSky.Parent then
-            createdSky:Destroy()
-            createdSky = nil
-        end
-        
-        -- Remove qualquer skybox com nome GonerSkybox
-        for _, obj in ipairs(Lighting:GetChildren()) do
-            if obj:IsA("Sky") and obj.Name == "GonerSkybox" then
-                obj:Destroy()
-            end
-        end
-
-        -- Restaura o Sky original
-        if originalSky then
-            originalSky.Parent = Lighting
-            originalSky = nil
-        end
-
-        -- Restaura configurações originais do Lighting (REMOVE EFEITOS VERMELHOS)
-        if originalLighting.Brightness then
-            Lighting.Brightness = originalLighting.Brightness
-            Lighting.ClockTime = originalLighting.ClockTime
-            Lighting.GeographicLatitude = originalLighting.GeographicLatitude
-            Lighting.OutdoorAmbient = originalLighting.OutdoorAmbient
-            Lighting.Ambient = originalLighting.Ambient
-            Lighting.FogColor = originalLighting.FogColor
-            Lighting.FogEnd = originalLighting.FogEnd
-        else
-            -- Se não houver backup, restaura valores padrão
-            Lighting.Brightness = 2
-            Lighting.ClockTime = 14
-            Lighting.GeographicLatitude = 41.733
-            Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127)
-            Lighting.Ambient = Color3.fromRGB(127, 127, 127)
-            Lighting.FogColor = Color3.fromRGB(191, 191, 191)
-            Lighting.FogEnd = 100000
-        end
-
-        -- Limpa a tabela de backup
-        originalLighting = {}
-
-        -- Mensagem no chat confirmando cancelamento
-        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            TextChatService.TextChannels.RBXGeneral:SendAsync("Goner Expansion Parado")
-        else
-            print("Goner Expansion Parado")
-        end
-        
-        print(" Esfera vermelha removida")
-        print(" Skybox restaurado")
-        print(" Iluminação vermelha removida")
-        print(" Sons parados")
-    end
-})
-
-scriptsTab:AddSection({ "Desastres naturais" })
-scriptsTab:AddButton({
-    Name = "Tornado Com Navio Grande",
-    Description = "",
-    Callback = function()
-local RS = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-local TextChatService = game:GetService("TextChatService")
-local Player = game.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
-local RootPart = Character:WaitForChild("HumanoidRootPart")
-local Vehicles = workspace:WaitForChild("Vehicles")
-
--- Aviso no chat
-if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then 
-    TextChatService.TextChannels.RBXGeneral:SendAsync(
-        "hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r[REDZ HUB ATTACK!]"
-    )
-else 
-    print("Nadaa")
-end
-
--- Função para tocar o áudio 5 vezes
-local selectedAudioID = 9068077052
-local function playAudio()
-    if not selectedAudioID then
-        warn("Nenhum áudio selecionado!")
-        return
-    end
-
-    local args = {
-        [1] = workspace,
-        [2] = selectedAudioID,
-        [3] = 1,
-    }
-
-    for i = 1, 5 do
-        RS.RE:FindFirstChild("1Gu1nSound1s"):FireServer(unpack(args))
-
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://" .. tostring(selectedAudioID)
-        sound.Parent = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
-        if sound.Parent then
-            sound:Play()
-        else
-            warn("HumanoidRootPart não encontrado")
-            break
-        end
-
-        task.wait(1.5)
-        sound:Destroy()
-    end
-end
-
--- Spawn do barco
-local function spawnBoat()
-    RootPart.CFrame = CFrame.new(1754, -2, 58)
-    task.wait(0.5)
-    RS:WaitForChild("RE"):FindFirstChild("1Ca1r"):FireServer("PickingBoat", "PirateFree")
-    task.wait(1)
-    return Vehicles:FindFirstChild(Player.Name .. "Car")
-end
-
-local PCar = spawnBoat()
-if not PCar then
-    warn("Falha ao spawnar o barco")
-    return
-end
-
-print("Barco PirateFree gerado!")
-
-local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
-if not Seat then
-    warn("Seat não encontrado")
-    return
-end
-
--- Sentar no assento
-repeat
-    task.wait(0.1)
-    RootPart.CFrame = Seat.CFrame * CFrame.new(0, 1, 0)
-until Humanoid.SeatPart == Seat
-
-print("Jogador sentado com sucesso!")
-
--- Tocar áudio em paralelo
-task.spawn(playAudio)
-
--- Ejetar após 4 segundos
-task.delay(4, function()
-    if Humanoid.SeatPart then
-        Humanoid.Sit = false
-    end
-    RootPart.CFrame = CFrame.new(0, 0, 0)
-    print("Jogador ejetado e teleportado")
-end)
-
--- Flip loop paralelo
-local RE_Flip = RS:WaitForChild("RE"):WaitForChild("1Player1sCa1r")
-task.spawn(function()
-    while PCar and PCar.Parent do
-        RE_Flip:FireServer("Flip")
-        task.wait(0.5)
-    end
-end)
-
--- Configuração de movimento
-local waypoints = {
-    Vector3.new(-16, 0, -47),
-    Vector3.new(-110, 0, -45),
-    Vector3.new(16, 0, -55)
-}
-
-local currentIndex = 1
-local nextIndex = 2
-local moveSpeed = 15
-local rotationSpeed = math.rad(720) -- 720°/s
-local progress = 0
-local currentRotation = 0
-
-local function lerpCFrame(a, b, t)
-    return a:lerp(b, t)
-end
-
--- Movimento + rotação
-RunService.Heartbeat:Connect(function(dt)
-    if not (PCar and PCar.PrimaryPart) then return end
-
-    local startPos = waypoints[currentIndex]
-    local endPos = waypoints[nextIndex]
-
-    progress += (moveSpeed * dt) / (startPos - endPos).Magnitude
-    if progress >= 1 then
-        progress = 0
-        currentIndex = nextIndex
-        nextIndex = (nextIndex % #waypoints) + 1
-    end
-
-    local newPos = lerpCFrame(CFrame.new(startPos), CFrame.new(endPos), progress).p
-    currentRotation += rotationSpeed * dt
-
-    local cf = CFrame.new(newPos) * CFrame.Angles(0, currentRotation, 0)
-    PCar:SetPrimaryPartCFrame(cf)
-end)
-end
-})
-
-scriptsTab:AddButton({
-    Name = "Desativar Tornado e Remover Veículo",
-    Description = "",
-    Callback = function()
-        -- Tenta remover o veículo via RemoteEvent
-        local success, err = pcall(function()
-            local args = { "DeleteAllVehicles" }
-            game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Ca1r"):FireServer(unpack(args))
-        end)
-
-        if not success then
-            warn("Falha ao deletar veículos:", err)
-        else
-            print("[Shaodws Hub] Tornado finalizado e veículos deletados.")
-        end
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-AFEM-Max-Open-Alpha-50210"))()
     end
 })
 
@@ -4253,7 +4138,7 @@ local textToWrite = ""
 scriptsTab:AddDropdown({
     Name = "Escolher Item",
     Default = "Bomb",
-    Options = {"Bomb", "BabyBoy", "Box", "Laptop", "Basketball"},
+    Options = {"Bomb"},
     Callback = function(value)
         selectedItem = value
         print("", value)
@@ -4296,11 +4181,7 @@ scriptsTab:AddButton({
 
         -- Mapa de itens para objetos do workspace
         local ITEM_OBJECTS = {
-            ["Bomb"] = workspace.WorkspaceCom["001_CriminalWeapons"].GiveTools.Bomb,
-            ["BabyBoy"] = workspace.WorkspaceCom["001_GiveTools"].BabyBoy,
-            ["Box"] = workspace.WorkspaceCom["001_GiveTools"].Box,
-            ["Laptop"] = workspace.WorkspaceCom["001_GiveTools"].Laptop,
-            ["Basketball"] = workspace.WorkspaceCom["001_GiveTools"].Basketball
+            ["Bomb"] = workspace.WorkspaceCom["001_CriminalWeapons"].GiveTools.Bomb
         }
 
         -- Mapa de caracteres (pixel art 7x5)
@@ -4588,378 +4469,6 @@ scriptsTab:AddParagraph({"Informação:", "depois de escolher clique em escrever
 scriptsTab:AddParagraph({"Informação:", "vc vai começa a escrever"})
 
 local flingsTab = Window:MakeTab({"Troll ", "skull"})
-
-local Section = flingsTab:AddSection({"Se quiser trocar a skybox, apenas mude sua camisa"})
-
--- Variáveis para controlar os estados
-local SkyboxActive = false
-local CurrentTrack = nil
-local RigidTrack = nil
-
-flingsTab:AddButton({
-   Name = "Skybox FE",
-   Callback = function()
-        if SkyboxActive then
-            -- Desativa skybox e animações
-            if CurrentTrack then
-                CurrentTrack:Stop(0.1)
-                CurrentTrack = nil
-            end
-            if RigidTrack then
-                RigidTrack:Stop(0.1)
-                RigidTrack = nil
-            end
-            
-            -- Primeiro reseta a aparência
-            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
-            
-            -- Aguarda um pouco e então mata o personagem
-            task.wait(0.3)
-            
-            local Players = game:GetService("Players")
-            local player = Players.LocalPlayer
-            local character = player.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.Health = 0
-                end
-            end
-            
-            SkyboxActive = false
-            print("Skybox e andar duro removidos!")
-        else
-            -- Ativa a skybox
-            local args = {
-                {
-                    100839513065432
-                }
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-            
-            function missing(t, f, fallback)
-                if type(f) == t then return f end
-                return fallback 
-            end
-
-            cloneref = missing("function", cloneref, function(...) return ... end)
-
-            local Services = setmetatable({}, {
-                __index = function(_, name)
-                    return cloneref(game:GetService(name))
-                end
-            })
-
-            local Players = Services.Players
-            local player = Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local humanoid = character:WaitForChild("Humanoid")
-
-            -- Configurações da skybox
-            local Settings = {}
-            Settings["Fade In"]     = 0.1
-            Settings["Fade Out"]    = 0.1
-            Settings["Weight"]      = 1
-            Settings["Speed"]       = 1
-            Settings["Time Position"] = 0
-
-            local function LoadTrack(id)
-                local animId
-                local ok, result = pcall(function()
-                    return game:GetObjects("rbxassetid://" .. tostring(id))
-                end)
-
-                if ok and result and #result > 0 then
-                    local anim = result[1]
-                    if anim:IsA("Animation") then
-                        animId = anim.AnimationId
-                    else
-                        animId = "rbxassetid://" .. tostring(id)
-                    end
-                else
-                    animId = "rbxassetid://" .. tostring(id)
-                end
-
-                local newAnim = Instance.new("Animation")
-                newAnim.AnimationId = animId
-                local newTrack = humanoid:LoadAnimation(newAnim)
-                newTrack.Priority = Enum.AnimationPriority.Action4
-
-                local weight = Settings["Weight"]
-                if weight == 0 then weight = 0.001 end
-
-                newTrack:Play(Settings["Fade In"], weight, Settings["Speed"])
-                
-                CurrentTrack = newTrack
-                CurrentTrack.TimePosition = math.clamp(Settings["Time Position"], 0, 1) * CurrentTrack.Length
-
-                return newTrack
-            end
-
-            -- Executa a animação da skybox
-            local EmoteId = 101852027997337
-            LoadTrack(EmoteId)
-            
-            -- Aguarda um pouco antes de ativar o planking
-            task.wait(0.5)
-            
-            -- Ativa a animação de planking (andar duro/deitado)
-            local PlankingId = "rbxassetid://3695333486"
-            local plankAnim = Instance.new("Animation")
-            plankAnim.AnimationId = PlankingId
-            RigidTrack = humanoid:LoadAnimation(plankAnim)
-            RigidTrack.Priority = Enum.AnimationPriority.Movement
-            RigidTrack:Play(0.1, 1, 0)
-            
-            SkyboxActive = true
-            print("Skybox e andar duro ativados!")
-        end
-    end
-})
-
--- Botão de reset completo
-flingsTab:AddButton({
-    Name = "Para Skybox",
-    Callback = function()
-        if CurrentTrack then
-            CurrentTrack:Stop(0.1)
-            CurrentTrack = nil
-        end
-        if RigidTrack then
-            RigidTrack:Stop(0.1)
-            RigidTrack = nil
-        end
-        SkyboxActive = false
-        
-        -- Primeiro reseta a aparência
-        game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
-        
-        -- Aguarda um pouco para o remote processar
-        task.wait(0.3)
-        
-        -- Depois mata o personagem
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
-        local character = player.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.Health = 0
-            end
-        end
-        
-        print("Aparência resetada e personagem morto!")
-    end
-})
-
--- Detecção automática de reset/morte do personagem
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-player.CharacterAdded:Connect(function()
-    -- Quando o personagem respawna, desativa tudo
-    SkyboxActive = false
-    CurrentTrack = nil
-    RigidTrack = nil
-    print("Personagem resetado - Tudo desativado")
-end)
-
-flingsTab:AddSection({ "Nuke Server" })
-
-local SkyboxActive = false
-local CurrentTrack = nil
-local EmoteTrack = nil
-local SpinConnection = nil
-
-flingsTab:AddButton({
-   Name = "Nuke FE",
-   Callback = function()
-        if SkyboxActive then
-            if CurrentTrack then
-                CurrentTrack:Stop(0.1)
-                CurrentTrack = nil
-            end
-            
-            if EmoteTrack then
-                EmoteTrack:Stop(0.1)
-                EmoteTrack = nil
-            end
-            
-            if SpinConnection then
-                SpinConnection:Disconnect()
-                SpinConnection = nil
-            end
-            
-            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
-            task.wait(0.3)
-            
-            local Players = game:GetService("Players")
-            local player = Players.LocalPlayer
-            local character = player.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.Health = 0
-                end
-            end
-            
-            SkyboxActive = false
-        else
-            local Players = game:GetService("Players")
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local player = Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local humanoid = character:WaitForChild("Humanoid")
-            local animator = humanoid:WaitForChild("Animator")
-            local rootPart = character:WaitForChild("HumanoidRootPart")
-
-            local animationId = 121255258198847
-            local assetUrl = "rbxassetid://" .. animationId
-            
-            pcall(function()
-                local anim = Instance.new("Animation")
-                anim.AnimationId = assetUrl
-                EmoteTrack = animator:LoadAnimation(anim)
-                EmoteTrack.Priority = Enum.AnimationPriority.Action
-                EmoteTrack.Looped = true
-                EmoteTrack:Play()
-            end)
-            
-            task.wait(0.1)
-            pcall(function()
-                local remote = ReplicatedStorage.Remotes:FindFirstChild("Emotes:PlaySyncableEmote")
-                if remote then
-                    local args = {
-                        [1] = {
-                            ["Id"] = animationId,
-                            ["Repeat"] = true,
-                            ["Name"] = "Hurt",
-                            ["Filter"] = "Pose"
-                        }
-                    }
-                    remote:FireServer(unpack(args))
-                end
-            end)
-            
-            pcall(function()
-                local args = {
-                    [1] = "Hurt"
-                }
-                ReplicatedStorage.Remotes.t_animationPlayed:FireServer(unpack(args))
-            end)
-            
-            task.wait(0.5)
-            
-            local args = {
-                {
-                    100839513065432
-                }
-            }
-            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-            
-            function missing(t, f, fallback)
-                if type(f) == t then return f end
-                return fallback 
-            end
-
-            cloneref = missing("function", cloneref, function(...) return ... end)
-
-            local Services = setmetatable({}, {
-                __index = function(_, name)
-                    return cloneref(game:GetService(name))
-                end
-            })
-
-            local Settings = {}
-            Settings["Fade In"]     = 0.1
-            Settings["Fade Out"]    = 0.1
-            Settings["Weight"]      = 1
-            Settings["Speed"]       = 1
-            Settings["Time Position"] = 0
-
-            local function LoadTrack(id)
-                local animId
-                local ok, result = pcall(function()
-                    return game:GetObjects("rbxassetid://" .. tostring(id))
-                end)
-
-                if ok and result and #result > 0 then
-                    local anim = result[1]
-                    if anim:IsA("Animation") then
-                        animId = anim.AnimationId
-                    else
-                        animId = "rbxassetid://" .. tostring(id)
-                    end
-                else
-                    animId = "rbxassetid://" .. tostring(id)
-                end
-
-                local newAnim = Instance.new("Animation")
-                newAnim.AnimationId = animId
-                local newTrack = animator:LoadAnimation(newAnim)
-                newTrack.Priority = Enum.AnimationPriority.Core
-
-                local weight = Settings["Weight"]
-                if weight == 0 then weight = 0.001 end
-
-                newTrack:Play(Settings["Fade In"], weight, Settings["Speed"])
-                
-                CurrentTrack = newTrack
-                CurrentTrack.TimePosition = math.clamp(Settings["Time Position"], 0, 1) * CurrentTrack.Length
-
-                return newTrack
-            end
-
-            local EmoteId = 101852027997337
-            LoadTrack(EmoteId)
-            
-            local RunService = game:GetService("RunService")
-            local spinSpeed = 5
-            
-            SpinConnection = RunService.Heartbeat:Connect(function(deltaTime)
-                if rootPart and rootPart.Parent then
-                    local rotation = CFrame.Angles(0, math.rad(spinSpeed * deltaTime * 60), 0)
-                    rootPart.CFrame = rootPart.CFrame * rotation
-                end
-            end)
-            
-            SkyboxActive = true
-        end
-    end
-})
-
-flingsTab:AddButton({
-   Name = "Stop Nuke",
-   Callback = function()
-        if CurrentTrack then
-            CurrentTrack:Stop(0.1)
-            CurrentTrack = nil
-        end
-        if EmoteTrack then
-            EmoteTrack:Stop(0.1)
-            EmoteTrack = nil
-        end
-        if SpinConnection then
-            SpinConnection:Disconnect()
-            SpinConnection = nil
-        end
-        SkyboxActive = false
-        
-        game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
-        
-        task.wait(0.3)
-        
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
-        local character = player.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.Health = 0
-            end
-        end
-    end
-})
 
 flingsTab:AddSection({ "Troll" })
 
@@ -8781,19 +8290,6 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RemoteFolder = ReplicatedStorage:WaitForChild("RE")
 
-local fireX = workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_GiveTools"):FindFirstChild("FireX")
-local fireXClick = fireX and fireX:FindFirstChildOfClass("ClickDetector")
-local fireXPrompt = fireX and fireX:FindFirstChildOfClass("ProximityPrompt")
-local fireXEnabled = false
-local fireXWeld = nil
-local fireXArgs = { [1] = "FireX", [2] = "On" }
-
-local laptop = workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_GiveTools"):FindFirstChild("Laptop")
-local laptopClick = laptop and laptop:FindFirstChildOfClass("ClickDetector")
-local laptopPrompt = laptop and laptop:FindFirstChildOfClass("ProximityPrompt")
-local laptopEnabled = false
-local laptopWeld = nil
-
 local vehiclesFolder = workspace:WaitForChild("Vehicles")
 local isActiveVehicle = false
 local selectedPlayerName = nil
@@ -8828,38 +8324,6 @@ end
 
 task.spawn(function()
 	while true do
-		if fireXEnabled and fireX then
-			if not fireXWeld then fireXWeld = grudar(fireX, fireXWeld) end
-			if fireXClick then
-				fireclickdetector(fireXClick)
-			elseif fireXPrompt then
-				fireproximityprompt(fireXPrompt)
-			else
-				firetouchinterest(hrp, fireX, 0)
-				firetouchinterest(hrp, fireX, 1)
-			end
-			local remote
-			if LocalPlayer.Character then
-				local tool = LocalPlayer.Character:FindFirstChild("FireX")
-				if tool then remote = tool:FindFirstChild("ToolSound") end
-			end
-			if remote and remote.FireServer then
-				pcall(function() remote:FireServer(table.unpack(fireXArgs)) end)
-			end
-		end
-		if laptopEnabled and laptop then
-			if not laptopWeld then laptopWeld = grudar(laptop, laptopWeld) end
-			for i = 1, 8 do
-				if laptopClick then
-					fireclickdetector(laptopClick)
-				elseif laptopPrompt then
-					fireproximityprompt(laptopPrompt)
-				else
-					firetouchinterest(hrp, laptop, 0)
-					firetouchinterest(hrp, laptop, 1)
-				end
-			end
-		end
 		if isActiveVehicle and selectedPlayerName then
 			local targetPlayer = Players:FindFirstChild(selectedPlayerName)
 			if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -8872,36 +8336,6 @@ task.spawn(function()
 		task.wait(0.01)
 	end
 end)
-
-UserInputService.InputBegan:Connect(function(input, processed)
-	if processed then return end
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		if fireXEnabled and fireXClick then fireclickdetector(fireXClick) end
-		if laptopEnabled and laptopClick then fireclickdetector(laptopClick) end
-	end
-end)
-
-flingsTab:AddToggle({
-	Name = "FireX Auto",
-	Default = false,
-	Callback = function(state)
-		fireXEnabled = state
-		if not state then
-			fireXWeld = desgrudar(fireXWeld)
-		end
-	end
-})
-
-flingsTab:AddToggle({
-	Name = "Lag Laptop",
-	Default = false,
-	Callback = function(state)
-		laptopEnabled = state
-		if not state then
-			laptopWeld = desgrudar(laptopWeld)
-		end
-	end
-})
 
 local function getPlayerList()
 	local PlayerNames = {}
@@ -9081,55 +8515,6 @@ flingsTab:AddToggle({
 	end
 })
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LocalPlayer = Players.LocalPlayer
-
-local selectedPlayerName = nil
-local selectedPlayer = nil
-local singlePlayerActive = false
-local allPlayersActive = false
-local singlePlayerConn = {}
-local allPlayersConnections = {}
-
-local RemoteEvent = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Playe1rTrigge1rEven1t")
-local ClearToolsEvent = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Clea1rTool1s")
-
-local function getPlayerList()
-	local list = {}
-	for _, player in ipairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer then
-			table.insert(list, player.Name)
-		end
-	end
-	return list
-end
-
-local killDropdown = flingsTab:AddDropdown({
-	Name = "Selecionar Jogador",
-	Options = getPlayerList(),
-	Default = "",
-	Callback = function(value)
-		selectedPlayerName = value
-		selectedPlayer = Players:FindFirstChild(value)
-	end
-})
-
-local function UpdateDropdown()
-	local newPlayers = getPlayerList()
-	if killDropdown then
-		killDropdown:Set(newPlayers)
-		selectedPlayerName = nil
-		selectedPlayer = nil
-		killDropdown:SetValue("")
-	end
-end
-
-flingsTab:AddButton({
-	Name = "Atualizar Player List",
-	Callback = UpdateDropdown
-})
-
 local Tab = Window:MakeTab({"Musica", "rbxassetid://111911979482253"})
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -9137,404 +8522,6 @@ local Tab = Window:MakeTab({"Musica", "rbxassetid://111911979482253"})
 ---------------------------------------------------------------------------------------------------------------------------------
 
 Tab:AddSection({"Musica"})
-
-local loopAtivo = false
-local InputID = ""
-
-Tab:AddTextBox({
-    Name = "Insira o ID Audio All",
-    Description = "Digite o ID do som que deseja tocar",
-    Default = "",
-    PlaceholderText = "Exemplo: 6832470734",
-    ClearTextOnFocus = true,
-    Callback = function(text)
-        InputID = tonumber(text)
-    end
-})
-
-local function fireServer(eventName, args)
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local event = ReplicatedStorage:FindFirstChild("RE") and ReplicatedStorage.RE:FindFirstChild(eventName)
-    if event then
-        pcall(function()
-            event:FireServer(unpack(args))
-        end)
-    end
-end
-
-Tab:AddButton({
-    Name = "Tocar Som",
-    Description = "Clique para tocar a música inserida",
-    Callback = function()
-        if InputID then
-            fireServer("1Gu1nSound1s", {Workspace, InputID, 1})
-            local globalSound = Instance.new("Sound", Workspace)
-            globalSound.SoundId = "rbxassetid://" .. InputID
-            globalSound.Looped = false
-            globalSound:Play()
-            task.wait(3)
-            globalSound:Destroy()
-        end
-    end
-})
-
-Tab:AddToggle({
-    Name = "Loop",
-    Description = "Ative para colocar o som em loop",
-    Default = false,
-    Callback = function(state)
-        loopAtivo = state
-        if loopAtivo then
-            spawn(function()
-                while loopAtivo do
-                    if InputID then
-                        fireServer("1Gu1nSound1s", {Workspace, InputID, 1})
-                        local globalSound = Instance.new("Sound", Workspace)
-                        globalSound.SoundId = "rbxassetid://" .. InputID
-                        globalSound.Looped = false
-                        globalSound:Play()
-                        task.spawn(function()
-                            task.wait(3)
-                            globalSound:Destroy()
-                        end)
-                    end
-                    task.wait(1)
-                end
-            end)
-        end
-    end
-})
-
--- Dropdowns para Tab
-local function createSoundDropdown(title, musicOptions, defaultOption)
-    local musicNames = {}
-    local categoryMap = {}
-    for category, sounds in pairs(musicOptions) do
-        for _, music in ipairs(sounds) do
-            if music.name ~= "" and music.id ~= "4354908569" then
-                table.insert(musicNames, music.name)
-                categoryMap[music.name] = {id = music.id, category = category}
-            end
-        end
-    end
-
-    local selectedSoundID = nil
-    local currentVolume = 1
-    local currentPitch = 1
-
-    local function playSound(soundId, volume, pitch)
-        fireServer("1Gu1nSound1s", {Workspace, soundId, volume})
-        local globalSound = Instance.new("Sound")
-        globalSound.Parent = Workspace
-        globalSound.SoundId = "rbxassetid://" .. soundId
-        globalSound.Volume = volume
-        globalSound.Pitch = pitch
-        globalSound.Looped = false
-        globalSound:Play()
-        task.spawn(function()
-            task.wait(3)
-            globalSound:Destroy()
-        end)
-    end
-
-    Tab:AddDropdown({
-        Name = title,
-        Description = "Escolha um som para tocar no servidor",
-        Default = defaultOption,
-        Multi = false,
-        Options = musicNames,
-        Callback = function(selectedSound)
-            if selectedSound and categoryMap[selectedSound] then
-                selectedSoundID = categoryMap[selectedSound].id
-            else
-                selectedSoundID = nil
-            end
-        end
-    })
-
-    Tab:AddButton({
-        Name = "Tocar Som Selecionado",
-        Description = "Clique para tocar o som do dropdown",
-        Callback = function()
-            if selectedSoundID then
-                playSound(selectedSoundID, currentVolume, currentPitch)
-            end
-        end
-    })
-
-    local dropdownLoopActive = false
-    Tab:AddToggle({
-        Name = "Loop",
-        Description = "Ativa o loop do som selecionado",
-        Default = false,
-        Callback = function(state)
-            dropdownLoopActive = state
-            if state then
-                task.spawn(function()
-                    while dropdownLoopActive do
-                        if selectedSoundID then
-                            playSound(selectedSoundID, currentVolume, currentPitch)
-                        end
-                        task.wait(1)
-                    end
-                end)
-            end
-        end
-    })
-end
-
--- Dropdown "Memes"
-createSoundDropdown("Selecione um meme", {
-    ["Memes"] = {
-        {name = "pankapakan", id = "122547522269143"}, 
-       
-        {name = "Gemido ultra rápido", id = "128863565301778"},
-        {name = "vai g0z@?", id = "116293771329297"},
-        {name = "G0z33iiii", id = "93462644278510"},
-        {name = "Hommmm ", id = "133135656929513"},
-        {name = "gemido1", id = "105263704862377"},
-        {name = " gemido2", id = "92186909873950"},
-        {name = "sus sex", id = "128137573022197"},
-        {name = "gemido estranho", id = "131219411501419"},
-        {name = "gemido kawai", id = "100409245129170"},
-        {name = "Hentai wiaaaaan", id = "88332347208779"},
-        {name = "iamete cunasai", id = "108494476595033"},
-        {name = "dodichan onnn...", id = "134640594695384"},
-        {name = "Loly gemiD0", id = "119277017538197"},
-         {name = "ai poison", id = "115870718113313"},
-         {name = "chegachega SUS", id = "77405864184828"},
-         {name = "uwu", id = "76820720070248"},
-         {name = "ai meu cuzin", id = "130714479795369"},
-         {name = "girl audio 2", id = "84207358477461"},
-        {name = "Hoo ze da manga", id = "106624090319571"},
-        {name = "ai alexandre de moraes", id = "107261471941570"},
-        {name = "haaii meme", id = "120006672159037"},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
- 
-    
-
-
-        {name = "GoGogo gogogo", id = "103262503950995"},
-        {name = "Toma jack", id = "132603645477541"},
-        {name = "Toma jackV2", id = "100446887985203"},
-        {name = "Toma jack no sol quente", id = "97476487963273"},
-        {name = "ifood", id = "133843750864059"},
-        {name = "pelo geito ela ta querendo ram", id = "94395705857835"},
-        {name = "lula vai todo mundo", id = "136804576009416"},
-        {name = "coringa", id = "84663543883498"},
-        {name = "shoope", id = "8747441609"},
-        {name = "quenojo", id = "103440368630269"},
-        {name = "sai dai lava prato", id = "101232400175829"},
-        {name = "se e loko numconpeça", id = "78442476709262"},
-        {name = "mita sequer que eu too uma", id = "94889439372168"},
-        {name = "Hoje vou ser tua mulher e tu", id = "90844637105538"},
-        {name = "Deita aqui eu mandei vc deitar sirens", id = "100291188941582"},
-        {name = "miau", id = "131804436682424"},
-        {name = "skibidi", id = "128771670035179"},
-        {name = "BIRULEIBI", id = "121569761604968"},
-        {name = "biseabesjnjkasnakjsndjkafb", id = "133106998846260"},
-        {name = "vai corinthians!!....", id = "127012936767471"},
-        {name = "my sigman", id = "103431815659907"},
-        {name = "mama", id = "106850066985594"},
-        {name = "OH MY GOD", id = "73349649774476"},
-        {name = "aahhh plankton meme", id = "95982351322190"},
-        {name = "CHINABOY", id = "84403553163931"},
-        {name = "PASTOR MIRIM E A LÍNGUA DOS ANJOS", id = "71153532555470"},
-        
-        {name = "Sai d3sgraç@", id = "106973692977609"},
-        
-        {name = "opa salve tudo bem?", id = "80870678096428"},
-        {name = "OLHA O CARRO DO DANONE", id = "110493863773948"},
-        {name = "Nãoooo, Nãoooo, Nãooo!!!!!", id = "95825536480898"},
-        {name = "UM PÉ DE SIRIGUELA KK", id = "112804043442210"},
-        {name = "e o carro da pamonha", id = "94951629392683"},
-        {name = "BOM DIAAAAAAAAAA", id = "136579844511260"},
-        {name = "ai-meu-chiclete", id = "92911732806153"},
-        {name = "posso te ligar ou tua mulher...", id = "103211341252816"},
-        {name = "Boa chi joga muito cara", id = "110707564387669"},
-        {name = "Oqueee meme", id = "120092799810101"},
-        {name = "kkk muito fei", id = "79241074803021"},
-        {name = "lula cade o ze gotinha", id = "86012585992725"},
-        {name = "morreu", id = "8872409975"},
-        {name = "a-pia-ta-cheia-de-louca", id = "98076927129047"},
-        {name = "Mahito killSong", id = "128669424001766"},
-        {name = "Sucumba", id = "7946300950"},
-        {name = "nem clicou o thurzin", id = "84428355313544"},
-        {name = "fiui OLHA MENSAGEM", id = "121668429878811"},
-        {name = "tooomeee", id = "128319664118768"},
-        {name = "risada de ladrao", id = "133065882609605"},
-        {name = "E o PIX nada ainda", id = "113831443375212"},
-        {name = "Vo nada vo nada", id = "89093085290586"},
-        {name = "Eli gosta", id = "105012436535315"},
-        {name = "um cavalo de tres pernas?", id = "8164241439"},
-        {name = "voces sao um bado de fdp", id = "8232773326"},
-        {name = "HAHA TROLLEI ATÉ VOCÊ", id = "7021794555"},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        
-        
-
-        {name = "Calaboca Kenga", id = "86494561679259"},
-        {name = "alvincut", id = "88788640194373"},
-        {name = "e a risada faz como?", id = "140713372459057"},
-        {name = "voce deve se m@t4", id = "100227426848009"},
-        {name = "receba", id = "94142662616215"},
-        {name = "UUIIII", id = "73210569653520"},
-        
-
-
-
-        {name = "sai", id = "121169949217007"},
-        {name = "risada boa dms", id = "127589011971759"},
-        {name = "vacilo perna de pau", id = "106809680656199"},
-        {name = "gomo gomo no!!!", id = "137067472449625"},
-        {name = "arroto", id = "140203378050178"},
-        {name = "iraaaa", id = "136752451575091"},
-        {name = "não fica se achando muito não", id = "101588606280167"},
-       
-        {name = "WhatsApp notificaçaoV1", id = "107004225739474"},
-        {name = "WhatsApp notificaçaoV2", id = "18850631582"},
-        {name = "SamsungV1", id = "123767635061073"},
-        {name = "SamsungV2", id = "96579234730244"}, 
-        {name = "Shiiii", id = "120566727202986"},
-        {name = "ai_tomaa miku", id = "139770074770361"},
-        {name = "Miku Miku", id = "72812231495047"},
-        {name = "kuru_kuru", id = "122465710753374"},
-        {name = "PM ROCAM", id = "96161547081609"},
-        {name = "cavalo!!", id = "78871573440184"},
-        {name = "deixa os garoto brinca", id = "80291355054807"},
-        {name = "flamengo", id = "137774355552052"},
-        {name = "sai do mei satnas", id = "127944706557246"},
-        {name = "namoral agora e a hora", id = "120677947987369"},
-        {name = "n pode me chutar pq seu celebro e burro", id = "82284055473737"},
-        {name = "vc ta fudido vou te pegar", id = "120214772725166"},
-        {name = "deley", id = "102906880476838"},
-        {name = "Tu e um beta", id = "130233956349541"},
-        {name = "Porfavor n tira eu nao", id = "85321374020324"},
-        {name = "Olá beleza vc pode me dá muitos", id = "74235334504693"},
-        {name = "Discord sus", id = "122662798976905"},
-        {name = "rojao apito", id = "6549021381"},
-        {name = "off", id = "1778829098"},
-        {name = "Kazuma kazuma", id = "127954653962405"},
-        {name = "sometourado", id = "123592956882621"},
-        {name = "Estouradoespad", id = "136179020015211"},
-        {name = "Alaku bommm", id = "110796593805268"},
-        {name = "busss", id = "139841197791567"},
-        {name = "Estourado wItb", id = "137478052262430"},
-        {name = "sla", id = "116672405522828"},
-        {name = "HA HA HA", id = "138236682866721"}
-    }
-}, "pankapakan")
-
-
-
-local Section = Tab:AddSection({" tacar o terror ou efeito no server"})
-
--- Dropdown "Efeito/Terror"
-createSoundDropdown("Selecione um terror ou efeito", {
-    ["efeito/terror"] = {
-        {name = "jumpscar", id = "91784486966761"},
-        {name = "n se preocupe", id = "87041057113780"},
-        {name = "eles estao todos mortos", id = "70605158718179"},
-
-        {name = "gritoestourado", id = "7520729342"},
-        {name = "gritomedo", id = "113029085566978"},
-        {name = "Nukesiren", id = "9067330158"},
-        {name = "nuclear sirenv2", id = "675587093"},
-        {name = "Alertescola", id = "6607047008"},
-        {name = "Memealertsiren", id = "8379374771"},
-        {name = "sirenv3", id = "6766811806"},
-        {name = "Alarm estourAAAA...", id = "93354528379052"},
-        {name = "MegaMan Alarm", id = "1442382907"},
-        {name = "Alarm bookhaven", id = "1526192493"},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-
-
-
-        {name = "alet malaysia", id = "7714172940"},
-        {name = "Risada", id = "79191730206814"},
-        {name = "Hahahah", id = "90096947219465"},
-        {name = "scream", id = "314568939"},
-        {name = "Terrified meme scream", id = "5853668794"},
-        {name = "Sonic.exe Scream Effect", id = "146563959"},
-        {name = "Demon Scream", id = "2738830850"},
-        {name = "SCP-096 Scream (raging)", id = "343430735"},
-        {name = "Nightmare Yelling Bursts", id = "9125713501"},
-        {name = "HORROR SCREAM 07", id = "9043345732"},
-        {name = "Female Scream Woman Screams", id = "9114397912"},
-        {name = "Scream1", id = "1319496541"},
-        {name = "Scream2", id = "199978176"},
-        {name = "scary maze scream", id = "270145703"},
-        {name = "SammyClassicSonicFan's Scream", id = "143942090"},
-        {name = "FNAF 2 Death Scream", id = "1572549161"},
-        {name = "cod zombie scream", id = "8566359672"},
-        {name = "Slendytubbies- CaveTubby Scream", id = "1482639185"},
-        {name = "FNAF 2 Death Scream", id = "5537531920"},
-        {name = "HORROR SCREAM 15", id = "9043346574"},
-        {name = "Jumpscare Scream", id = "6150329916"},
-        {name = "FNaF: Security Breach", id = "2050522547"},
-        {name = "llllllll", id = "5029269312"},
-        {name = "loud jumpscare", id = "7236490488"},
-        {name = "fnaf", id = "6982454389"},
-        {name = "Pinkamena Jumpscare 1", id = "192334186"},
-        {name = "Ennard Jumpscare 2", id = "629526707"},
-        {name = "a sla medo dino", id = "125506416092123"},
-        {name = "Backrooms Bacteria Pitfalls ", id = "81325342128575"},
-        
-        {name = "error Infinite", id = "3893790326"},
-        {name = "Screaming Meme", id = "107732411055226"},
-        {name = "Jumpscare - SCP CB", id = "97098997494905"},
-        {name = "mirror jumpscare", id = "80005164589425"},
-        {name = "PTLD-39 Jumpscare", id = "5581462381"},
-        {name = "jumpscare:Play()", id = "121519648044128"},
-        {name = "mimic jumpscare", id = "91998575878959"},
-        {name = "DOORS Glitch Jumpscare Sound", id = "96377507894391"},
-        {name = "FNAS 4 Nightmare Mario", id = "99804224106385"},
-        {name = "Death House I Jumpscare Sound", id = "8151488745"},
-        {name = "Shinky Jumpscare", id = "123447772144411"},
-        {name = "FNaTI Jumpscare Oblitus casa", id = "18338717319"},
-        {name = "fnaf jumpscare loadmode", id = "18911896588"},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""},
-        {name = "", id = ""}
-    }
-}, "jumpscar")
-
 
 ---------------------------------------------------------------------------------------------------------------------------------
                                           -- === Tab 8: Troll Musica === --
